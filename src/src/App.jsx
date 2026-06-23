@@ -140,33 +140,7 @@ export default function App(){
     return true;
   };
 
-  /* ═══ НОВАЯ ЛОГИКА: один заказ в день по типу ═══
-     Если за сегодня уже есть заказ с тем же order_type и не отменён/отгружен —
-     добавляем позицию в него (через комментарий + обновление полей),
-     иначе создаём новый.
-     ВАЖНО: функция создаёт новый или возвращает существующий ID дня.
-  */
   const ao=async(o)=>{
-    const dateKey=todayStr(); // YYYY-MM-DD
-    // Ищем существующий заказ этого дня + типа
-    const existing=orders.find(x=>
-      x.order_type===o.order_type &&
-      !["cancelled","shipped"].includes(x.status) &&
-      x.created_at&&x.created_at.slice(0,10)===dateKey
-    );
-    if(existing){
-      // Добавляем позицию как комментарий к существующему заказу
-      const posText=`+ позиция: ${o.paint_type} · ${o.palette} · ${o.color_code} · ${o.order_type==="образец"?`обр. ${o.container_size}`:`${o.quantity}×20кг`}${o.primer_qty?` + грунт ${o.primer_qty}×10кг`:""}${o.object_name?` · ${o.object_name}`:""}${o.facade_area?` · ${o.facade_area}м²`:""}${o.comment?` · ${o.comment}`:""}`;
-      await ac(existing.id,posText,"Система");
-      // Если у этого заказа не было рецептуры — отметим
-      if(!existing.has_recipe&&o.has_recipe){
-        await uo(existing.id,{has_recipe:true});
-      }
-      setPage("detail");
-      setDid(existing.id);
-      return;
-    }
-    // Создаём новый заказ дня
     const row={paint_type:o.paint_type,palette:o.palette,color_code:o.color_code,has_recipe:o.has_recipe,order_type:o.order_type,container_size:o.order_type==="образец"?o.container_size:"20кг",quantity:o.order_type==="образец"?1:parseInt(o.quantity),primer_qty:o.primer_qty||null,object_name:o.object_name||null,facade_area:o.facade_area||null,comment:o.comment||null,desired_date:o.desired_date||null,status:"new",created_by:o.created_by};
     const{data,error}=await SB.from("orders").insert(row).select().single();
     if(error){alert("Ошибка: "+error.message);return}
