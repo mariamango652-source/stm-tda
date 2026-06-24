@@ -90,6 +90,14 @@ export default function App(){
         (kp||[]).forEach(k=>{if(!kpMap[k.order_id])kpMap[k.order_id]=[];kpMap[k.order_id].push(k)});
       }catch(e){console.log("order_kp table may not exist yet:",e.message)}
       setOrders(orderList.map(o=>({...o,comments:cmtMap[o.id]||[],kp:kpMap[o.id]||[]})));
+      // Inject palette/code from orders so colors used in past orders always appear in selector
+      setColors(prev=>{
+        const existing=new Set(prev.map(c=>c.palette+"|"+c.code));
+        const toAdd=orderList.filter(o=>o.palette&&o.color_code&&!existing.has(o.palette+"|"+o.color_code))
+          .map(o=>({palette:o.palette,code:o.color_code}));
+        const deduped=toAdd.filter((x,i)=>toAdd.findIndex(y=>y.palette===x.palette&&y.code===x.code)===i);
+        return deduped.length>0?[...prev,...deduped]:prev;
+      });
       const{data:cd}=await SB.from("colors").select("code,silicate_recipe,acrylic_recipe").or("silicate_recipe.eq.true,acrylic_recipe.eq.true");
       const rMap={};
       (cd||[]).forEach(c=>{if(c.silicate_recipe)rMap[c.code+"__силикат"]=true;if(c.acrylic_recipe)rMap[c.code+"__акрил"]=true});
