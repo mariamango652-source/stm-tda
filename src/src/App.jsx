@@ -19,16 +19,16 @@ const fmtDateShort=d=>d?new Date(d).toLocaleDateString("ru-RU",{day:"2-digit",mo
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const LS={get:(k,d)=>{try{const v=localStorage.getItem("stm_tda_"+k);return v?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem("stm_tda_"+k,JSON.stringify(v))}catch{}}};
 
-const BG="#f4f4f5";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G100="#f4f4f5";const G200="#e4e4e7";const G300="#d4d4d8";const G400="#a1a1aa";const G500="#71717a";const RED="#e8271a";const REDL="#fff1f0";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#1d4ed8";const BLUL="#eff6ff";const FD="Georgia,'Times New Roman',serif";
-const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=12;const SH="0 1px 3px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.06)";
-const C={background:W,borderRadius:R,padding:14,boxShadow:SH};
-const I={width:"100%",padding:"11px 14px",border:`1.5px solid ${G200}`,borderRadius:10,fontSize:14,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
+const BG="#f2f0ed";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G100="#f4f4f5";const G200="#e4e4e7";const G300="#d4d4d8";const G400="#a1a1aa";const G500="#71717a";const RED="#dc2626";const REDL="#fef2f2";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#1d4ed8";const BLUL="#eff6ff";const FD="Georgia,'Times New Roman',serif";
+const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=16;const SH="0 1px 2px rgba(0,0,0,.03),0 4px 16px rgba(0,0,0,.05)";
+const C={background:W,borderRadius:R,padding:20,boxShadow:SH};
+const I={width:"100%",padding:"13px 16px",border:`1.5px solid ${G200}`,borderRadius:12,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
 
 function Badge({status}){return <span style={{background:SC[status]+"12",color:SC[status],padding:"4px 14px",borderRadius:20,fontSize:11,fontWeight:800,letterSpacing:.5}}>{ST[status]}</span>}
 function TypeBadge({type}){const c=type==="образец"?RED:BLU;const bg=type==="образец"?REDL:BLUL;const icon=type==="образец"?"🧪":"📦";return <span style={{background:bg,color:c,padding:"3px 10px",borderRadius:8,fontSize:11,fontWeight:800}}>{icon} {type}</span>}
 function RB({has,label}){return <span style={{padding:"4px 12px",borderRadius:8,fontSize:11,fontWeight:800,color:has?GRN:RED,background:has?GRNL:REDL,border:`1.5px solid ${has?GRN:RED}22`}}>{label}: {has?"есть":"нет"}</span>}
-function Pill({active,onClick,children,c=RED}){return <button onClick={onClick} style={{padding:"6px 14px",borderRadius:8,border:active?`1.5px solid ${c}`:`1.5px solid ${G200}`,background:active?c+"0f":W,color:active?c:G500,fontSize:12,fontWeight:active?700:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:FF,transition:"all .12s"}}>{children}</button>}
-function Tag({children}){return <div style={{fontSize:10,fontWeight:700,color:G400,marginBottom:6,letterSpacing:1.2,textTransform:"uppercase"}}>{children}</div>}
+function Pill({active,onClick,children,c=RED}){return <button onClick={onClick} style={{padding:"8px 16px",borderRadius:10,border:active?`2px solid ${c}`:`1.5px solid ${G200}`,background:active?c+"0c":W,color:active?c:G500,fontSize:13,fontWeight:active?800:600,cursor:"pointer",whiteSpace:"nowrap",fontFamily:FF}}>{children}</button>}
+function Tag({children}){return <div style={{fontSize:11,fontWeight:800,color:RED,marginBottom:8,letterSpacing:1.5,textTransform:"uppercase"}}>{children}</div>}
 function Chevron({open}){return <span style={{color:G400,fontSize:12,transition:"transform .2s",display:"inline-block",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▼</span>}
 
 /* ═══ COLLAPSIBLE SECTION ═══ */
@@ -367,96 +367,97 @@ export default function App(){
 
 /* ═══ DASHBOARD ═══ */
 function Dash({o,gd,nv,cl,gr,recSync}){
+  const act=o.filter(x=>!["cancelled"].includes(x.status));
   const byStatus=(s)=>o.filter(x=>Array.isArray(s)?s.includes(x.status):x.status===s).length;
   const inWork=o.filter(x=>["inwork","waiting","accepted"].includes(x.status));
   const actSamples=inWork.filter(x=>x.order_type==="образец");
   const actBatch=inWork.filter(x=>x.order_type==="партия");
   const lc=cl.filter(x=>x.palette==="Ленинградская");
-  const lt=lc.length;
+  const cc=cl.filter(x=>x.palette==="Caparol");
+  const lt=lc.length;const ct=cc.length;
   const ls=Object.keys(recSync).filter(k=>k.endsWith("__силикат")&&recSync[k]&&lc.some(c=>k===c.code+"__силикат")).length;
   const la=Object.keys(recSync).filter(k=>k.endsWith("__акрил")&&recSync[k]&&lc.some(c=>k===c.code+"__акрил")).length;
+  const ccCodes=new Set(cc.map(c=>c.code));
+  const cs=Object.keys(recSync).filter(k=>k.endsWith("__силикат")&&recSync[k]&&ccCodes.has(k.replace("__силикат",""))).length;
+  const ca=Object.keys(recSync).filter(k=>k.endsWith("__акрил")&&recSync[k]&&ccCodes.has(k.replace("__акрил",""))).length;
   const todayD=todayStr();
   const todaySamples=o.filter(x=>x.order_type==="образец"&&!["cancelled"].includes(x.status)&&x.created_at?.slice(0,10)===todayD);
   const todayBatch=o.filter(x=>x.order_type==="партия"&&!["cancelled"].includes(x.status)&&x.created_at?.slice(0,10)===todayD);
 
   return <div>
-    {/* ACTION ROW */}
-    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
-      <button onClick={()=>nv("neworder")} style={{padding:"13px 8px",background:RED,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 2px 8px ${RED}40`}}>🧪 Образец</button>
-      <button onClick={()=>nv("neworder_партия")} style={{padding:"13px 8px",background:BLU,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 2px 8px ${BLU}40`}}>📦 Партия</button>
+    <div style={{display:"flex",gap:8,marginBottom:10}}>
+      <button onClick={()=>nv("neworder")} style={{flex:1,padding:"12px",background:`linear-gradient(135deg,${RED},#b91c1c)`,color:W,border:"none",borderRadius:12,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 4px 16px ${RED}44`}}>🧪 Образец</button>
+      <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"12px",background:`linear-gradient(135deg,${BLU},#1e40af)`,color:W,border:"none",borderRadius:12,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 4px 16px ${BLU}44`}}>📦 Партия</button>
+      <button onClick={()=>nv("orders")} style={{padding:"12px 14px",background:W,color:INK,border:`1.5px solid ${G200}`,borderRadius:12,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:FF}}>Все</button>
     </div>
 
-    {/* КОМПАКТНАЯ СТРОКА СТАТУСОВ */}
     <div style={{...C,marginBottom:8,padding:"10px 12px"}}>
-      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
-        <div style={{fontSize:10,fontWeight:700,color:G400,textTransform:"uppercase",letterSpacing:1}}>Статусы заказов</div>
-        <button onClick={()=>nv("orders")} style={{fontSize:11,color:RED,fontWeight:700,background:"none",border:"none",cursor:"pointer",padding:0}}>все →</button>
-      </div>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:4}}>
-        {[
-          ["Новые",byStatus(["new","accepted"]),RED],
-          ["Работа",byStatus(["inwork","waiting"]),ORG],
-          ["Готовы",byStatus("ready"),GRN],
-          ["Получены",byStatus("received"),BLU],
-          ["Отгружены",byStatus("shipped"),G400],
-          ["Отменены",byStatus("cancelled"),INK],
-        ].map(([l,v,c])=>
-          <div key={l} onClick={()=>nv("orders")} style={{textAlign:"center",cursor:"pointer",padding:"7px 2px",borderRadius:8,background:v>0?c+"0d":BG}}>
-            <div style={{fontSize:18,fontWeight:700,color:v>0?c:G300,lineHeight:1}}>{v}</div>
-            <div style={{fontSize:8,color:G400,marginTop:2,fontWeight:600,lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{l}</div>
+      <div style={{fontSize:10,fontWeight:800,color:G400,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Заказы по статусам</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+        {[["Новые",byStatus(["new","accepted"]),RED,"new"],["В работе",byStatus(["inwork","waiting"]),ORG,"inwork"],["Готовы",byStatus("ready"),GRN,"ready"],["Получены",byStatus("received"),"#2563eb","received"],["Отгружены",byStatus("shipped"),G500,"shipped"],["Отменены",byStatus("cancelled"),"#18181b","cancelled"]].map(([l,v,c,k])=>
+          <div key={k} onClick={()=>nv("orders_status_"+k)} style={{textAlign:"center",cursor:"pointer",padding:"8px 4px",borderRadius:10,background:v>0?c+"0c":BG,border:`1px solid ${v>0?c+"22":G200}`}}>
+            <div style={{fontSize:20,fontWeight:700,color:v>0?c:G400,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{v}</div>
+            <div style={{fontSize:9,color:G500,marginTop:3,fontWeight:700,lineHeight:1.2}}>{l}</div>
           </div>
         )}
       </div>
     </div>
 
-    {/* В РАБОТЕ — компактная строка */}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-      <div onClick={()=>nv("orders_образец")} style={{...C,padding:"10px 12px",cursor:"pointer",borderLeft:`3px solid ${RED}`}}>
-        <div style={{fontSize:9,color:RED,fontWeight:700,marginBottom:3,textTransform:"uppercase",letterSpacing:.5}}>🧪 Образцы</div>
-        <div style={{fontSize:26,fontWeight:700,color:INK,lineHeight:1}}>{actSamples.length}</div>
-        {todaySamples.length>0&&<div style={{fontSize:9,color:GRN,marginTop:2,fontWeight:700}}>+{todaySamples.length} сегодня</div>}
+      <div onClick={()=>nv("orders_образец")} style={{...C,padding:"12px 14px",cursor:"pointer",borderLeft:`3px solid ${RED}`}}>
+        <div style={{fontSize:10,color:RED,fontWeight:800,marginBottom:4}}>🧪 Образцы в работе</div>
+        <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{actSamples.length}</div>
+        {todaySamples.length>0&&<div style={{fontSize:10,color:GRN,marginTop:4,fontWeight:700}}>+{todaySamples.length} сегодня</div>}
       </div>
-      <div onClick={()=>nv("orders_партия")} style={{...C,padding:"10px 12px",cursor:"pointer",borderLeft:`3px solid ${BLU}`}}>
-        <div style={{fontSize:9,color:BLU,fontWeight:700,marginBottom:3,textTransform:"uppercase",letterSpacing:.5}}>📦 Партии</div>
-        <div style={{fontSize:26,fontWeight:700,color:INK,lineHeight:1}}>{actBatch.length}</div>
-        {todayBatch.length>0&&<div style={{fontSize:9,color:GRN,marginTop:2,fontWeight:700}}>+{todayBatch.length} сегодня</div>}
-      </div>
-    </div>
-
-    {/* РЕЦЕПТУРЫ — компактная строка */}
-    <div style={{...C,marginBottom:8,padding:"10px 12px"}}>
-      <div style={{fontSize:10,fontWeight:700,color:G400,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Рецептуры · Ленинградская</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
-        {[[ls,lt,"Силикат",RED],[la,lt,"Акрил",ORG]].map(([v,t,lb,c])=>
-          <div key={lb} onClick={()=>nv(`recipes_L_${lb.toLowerCase()}`)} style={{cursor:"pointer",padding:"8px 10px",borderRadius:8,border:`1px solid ${c}22`,background:c+"07"}}>
-            <div style={{fontSize:9,color:G500,fontWeight:700,marginBottom:3}}>{lb}</div>
-            <div style={{display:"flex",alignItems:"baseline",gap:3}}>
-              <span style={{fontSize:20,fontWeight:700,color:c}}>{v}</span>
-              <span style={{fontSize:11,color:G400}}>/{t}</span>
-            </div>
-            <div style={{height:2,borderRadius:1,background:G200,marginTop:5}}><div style={{height:2,borderRadius:1,background:c,width:`${Math.max(2,t>0?(v/t)*100:0)}%`,transition:"width .3s"}}/></div>
-          </div>
-        )}
+      <div onClick={()=>nv("orders_партия")} style={{...C,padding:"12px 14px",cursor:"pointer",borderLeft:`3px solid ${BLU}`}}>
+        <div style={{fontSize:10,color:BLU,fontWeight:800,marginBottom:4}}>📦 Партии в работе</div>
+        <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{actBatch.length}</div>
+        {todayBatch.length>0&&<div style={{fontSize:10,color:GRN,marginTop:4,fontWeight:700}}>+{todayBatch.length} сегодня</div>}
       </div>
     </div>
 
-    {/* ПОСЛЕДНИЕ АКТИВНЫЕ — 2 в ряд */}
+    <div style={{...C,marginBottom:8,padding:"12px 14px"}}>
+      <div style={{fontSize:10,fontWeight:800,color:G400,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>Рецептуры</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
+        <div onClick={()=>nv("recipes_L_силикат")} style={{cursor:"pointer",padding:"10px 12px",borderRadius:12,border:`1.5px solid ${RED}22`,background:RED+"06"}}>
+          <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Ленингр. · Силикат</div>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:RED,fontFamily:FD,fontStyle:"italic"}}>{ls}</span><span style={{fontSize:11,color:G400}}>/{lt}</span></div>
+          <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:RED,width:`${Math.max(2,lt>0?(ls/lt)*100:0)}%`}}/></div>
+        </div>
+        <div onClick={()=>nv("recipes_L_акрил")} style={{cursor:"pointer",padding:"10px 12px",borderRadius:12,border:`1.5px solid ${ORG}22`,background:ORG+"06"}}>
+          <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Ленингр. · Акрил</div>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:ORG,fontFamily:FD,fontStyle:"italic"}}>{la}</span><span style={{fontSize:11,color:G400}}>/{lt}</span></div>
+          <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:ORG,width:`${Math.max(2,lt>0?(la/lt)*100:0)}%`}}/></div>
+        </div>
+        <div style={{padding:"10px 12px",borderRadius:12,border:`1.5px solid ${G200}`,background:BG}}>
+          <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Caparol · Силикат</div>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>{cs}</span><span style={{fontSize:11,color:G400}}>/{ct}</span></div>
+          <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:INK,width:`${Math.max(2,ct>0?(cs/ct)*100:0)}%`}}/></div>
+        </div>
+        <div style={{padding:"10px 12px",borderRadius:12,border:`1.5px solid ${G200}`,background:BG}}>
+          <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Caparol · Акрил</div>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>{ca}</span><span style={{fontSize:11,color:G400}}>/{ct}</span></div>
+          <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:INK,width:`${Math.max(2,ct>0?(ca/ct)*100:0)}%`}}/></div>
+        </div>
+      </div>
+    </div>
+
     {inWork.length>0&&<div style={{...C,padding:0,overflow:"hidden",marginBottom:8}}>
-      <div style={{padding:"9px 12px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${G200}`}}>
-        <div style={{fontSize:10,fontWeight:700,color:G500,letterSpacing:.5,textTransform:"uppercase"}}>В работе · {inWork.length}</div>
-        {inWork.length>6&&<button onClick={()=>nv("orders")} style={{fontSize:11,color:RED,fontWeight:700,background:"none",border:"none",cursor:"pointer",padding:0}}>все →</button>}
+      <div style={{padding:"10px 14px 8px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${G200}`}}>
+        <div style={{fontSize:10,fontWeight:800,color:G500,letterSpacing:1,textTransform:"uppercase"}}>В работе</div>
+        {inWork.length>4&&<button onClick={()=>nv("orders")} style={{fontSize:11,color:RED,fontWeight:700,background:"none",border:"none",cursor:"pointer",padding:0}}>все {inWork.length} →</button>}
       </div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
-        {inWork.slice(0,6).map((x,i)=><div key={x.id} onClick={()=>gd(x.id)} style={{padding:"9px 12px",cursor:"pointer",background:W,borderRight:i%2===0?`1px solid ${G200}50`:"none",borderBottom:i<inWork.slice(0,6).length-2?`1px solid ${G200}50`:"none"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:2}}>
-            <span style={{fontWeight:700,fontSize:12,color:INK}}>#{x.order_number}</span>
-            <span style={{fontSize:9,background:SC[x.status]+"15",color:SC[x.status],padding:"1px 6px",borderRadius:6,fontWeight:700}}>{ST[x.status]}</span>
+      {inWork.slice(0,4).map((x,i)=><div key={x.id} onClick={()=>gd(x.id)} style={{padding:"9px 14px",cursor:"pointer",background:W,borderBottom:i<Math.min(inWork.length,4)-1?`1px solid ${G200}50`:"none",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <div>
+          <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:1}}>
+            <span style={{fontWeight:700,fontSize:13,color:INK}}>#{x.order_number}</span>
+            <TypeBadge type={x.order_type}/>
           </div>
-          <div style={{fontSize:11,fontWeight:600,color:INK,marginBottom:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{x.color_code}</div>
-          <div style={{fontSize:10,color:G400}}>{x.order_type==="образец"?`🧪 ${x.container_size||""}`:`📦 ${x.quantity}×20кг`}{x.primer_qty?` +грунт×${x.primer_qty}`:""}</div>
-          {x.object_name&&<div style={{fontSize:9,color:G400,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>📍 {x.object_name}</div>}
-        </div>)}
-      </div>
+          <div style={{fontSize:11,color:G500}}>{x.color_code}{x.object_name?` · ${x.object_name}`:""}</div>
+          {x.primer_qty&&<div style={{fontSize:10,color:ORG,fontWeight:700}}>+ грунт ×{x.primer_qty}</div>}
+        </div>
+        <Badge status={x.status}/>
+      </div>)}
     </div>}
   </div>
 }
