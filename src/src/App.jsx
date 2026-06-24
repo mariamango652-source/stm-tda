@@ -19,16 +19,16 @@ const fmtDateShort=d=>d?new Date(d).toLocaleDateString("ru-RU",{day:"2-digit",mo
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const LS={get:(k,d)=>{try{const v=localStorage.getItem("stm_tda_"+k);return v?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem("stm_tda_"+k,JSON.stringify(v))}catch{}}};
 
-const BG="#f2f0ed";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G200="#e4e4e7";const G400="#a1a1aa";const G500="#71717a";const RED="#dc2626";const REDL="#fef2f2";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#1d4ed8";const BLUL="#eff6ff";const FD="Georgia,'Times New Roman',serif";
-const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=16;const SH="0 1px 2px rgba(0,0,0,.03),0 4px 16px rgba(0,0,0,.05)";
-const C={background:W,borderRadius:R,padding:20,boxShadow:SH};
-const I={width:"100%",padding:"13px 16px",border:`1.5px solid ${G200}`,borderRadius:12,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
+const BG="#f4f4f5";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G100="#f4f4f5";const G200="#e4e4e7";const G300="#d4d4d8";const G400="#a1a1aa";const G500="#71717a";const RED="#e8271a";const REDL="#fff1f0";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#1d4ed8";const BLUL="#eff6ff";const FD="Georgia,'Times New Roman',serif";
+const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=12;const SH="0 1px 3px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.06)";
+const C={background:W,borderRadius:R,padding:14,boxShadow:SH};
+const I={width:"100%",padding:"11px 14px",border:`1.5px solid ${G200}`,borderRadius:10,fontSize:14,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
 
 function Badge({status}){return <span style={{background:SC[status]+"12",color:SC[status],padding:"4px 14px",borderRadius:20,fontSize:11,fontWeight:800,letterSpacing:.5}}>{ST[status]}</span>}
 function TypeBadge({type}){const c=type==="образец"?RED:BLU;const bg=type==="образец"?REDL:BLUL;const icon=type==="образец"?"🧪":"📦";return <span style={{background:bg,color:c,padding:"3px 10px",borderRadius:8,fontSize:11,fontWeight:800}}>{icon} {type}</span>}
 function RB({has,label}){return <span style={{padding:"4px 12px",borderRadius:8,fontSize:11,fontWeight:800,color:has?GRN:RED,background:has?GRNL:REDL,border:`1.5px solid ${has?GRN:RED}22`}}>{label}: {has?"есть":"нет"}</span>}
-function Pill({active,onClick,children,c=RED}){return <button onClick={onClick} style={{padding:"8px 16px",borderRadius:10,border:active?`2px solid ${c}`:`1.5px solid ${G200}`,background:active?c+"0c":W,color:active?c:G500,fontSize:13,fontWeight:active?800:600,cursor:"pointer",whiteSpace:"nowrap",fontFamily:FF}}>{children}</button>}
-function Tag({children}){return <div style={{fontSize:11,fontWeight:800,color:RED,marginBottom:8,letterSpacing:1.5,textTransform:"uppercase"}}>{children}</div>}
+function Pill({active,onClick,children,c=RED}){return <button onClick={onClick} style={{padding:"6px 14px",borderRadius:8,border:active?`1.5px solid ${c}`:`1.5px solid ${G200}`,background:active?c+"0f":W,color:active?c:G500,fontSize:12,fontWeight:active?700:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:FF,transition:"all .12s"}}>{children}</button>}
+function Tag({children}){return <div style={{fontSize:10,fontWeight:700,color:G400,marginBottom:6,letterSpacing:1.2,textTransform:"uppercase"}}>{children}</div>}
 function Chevron({open}){return <span style={{color:G400,fontSize:12,transition:"transform .2s",display:"inline-block",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▼</span>}
 
 /* ═══ COLLAPSIBLE SECTION ═══ */
@@ -146,6 +146,16 @@ export default function App(){
     if(error){alert("Ошибка: "+error.message);return}
     if(data){
       setOrders(p=>[{...data,comments:[],kp:[]},...p]);
+      // Авто-создание объекта если указан адрес и объект ещё не существует
+      if(o.object_name&&o.object_name.trim()){
+        const name=o.object_name.trim();
+        const exists=objects.find(obj=>obj.name===name);
+        if(!exists){
+          try{
+            await addObject({name,address:null,contact_name:null,facade_area_total:o.facade_area||null,facade_area_paint:null,paint_type:o.paint_type||null,notes:null,status:"active"});
+          }catch(e){console.log("Auto-object:",e.message)}
+        }
+      }
       setPage("detail");
       setDid(data.id);
     }
@@ -341,14 +351,15 @@ export default function App(){
         {page==="objdetail"&&oid&&<ObjDetail obj={objects.find(x=>x.id===oid)} samples={samples.filter(s=>s.object_id===oid)} addSample={addSample} updateSample={updateSample} deleteSample={deleteSample} addDbRecipe={addDbRecipe} dbRecipes={dbRecipes} user={user} cl={colors} gr={gr} gb={()=>setPage("objects")} ao={ao} orders={orders.filter(o=>o.object_id===oid)}/>}
         {page==="export"&&<Exp o={orders} cl={colors} gr={gr}/>}
       </div>
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:"rgba(255,255,255,.96)",backdropFilter:"blur(20px)",borderTop:`1px solid ${G200}`,display:"flex",zIndex:100,paddingBottom:"env(safe-area-inset-bottom)"}}>
-        {[["dash","Главная","M3 12l9-9 9 9M9 21V12h6v9"],["neworder","Заказ","M12 5v14M5 12h14"],["orders","Заказы","M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"],["objects","Объекты","M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"],["recipes","Рецептуры","M9 3h6M10 3v7l-6 8a1.5 1.5 0 001.2 2.4h13.6A1.5 1.5 0 0020 18l-6-8V3"]].map(([id,lb,d])=>
-          <button key={id} onClick={()=>nv(id)} style={{flex:1,padding:"10px 0 8px",border:"none",background:"transparent",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:3,fontFamily:FF,position:"relative"}}>
-            {page===id&&<div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:28,height:3,borderRadius:2,background:RED}}/>}
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={page===id?RED:G400} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>
-            <span style={{fontSize:10,fontWeight:page===id?800:600,color:page===id?RED:G400}}>{lb}</span>
-          </button>
-        )}
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:"rgba(255,255,255,.97)",backdropFilter:"blur(20px)",borderTop:`1px solid ${G200}`,display:"flex",zIndex:100,paddingBottom:"env(safe-area-inset-bottom)"}}>
+        {[["dash","Главная","M3 12l9-9 9 9M9 21V12h6v9"],["neworder","Заказ","M12 5v14M5 12h14"],["orders","Заказы","M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"],["objects","Объекты","M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"],["recipes","Рецептуры","M9 3h6M10 3v7l-6 8a1.5 1.5 0 001.2 2.4h13.6A1.5 1.5 0 0020 18l-6-8V3"],["export","Экспорт","M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"]].map(([id,lb,d])=>{
+          const isActive=page===id||(id==="neworder"&&(page==="neworder"||page==="neworder_партия"));
+          return <button key={id} onClick={()=>nv(id)} style={{flex:1,padding:"9px 0 7px",border:"none",background:"transparent",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:2,fontFamily:FF,position:"relative"}}>
+            {isActive&&<div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:24,height:2.5,borderRadius:2,background:RED}}/>}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?RED:G400} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>
+            <span style={{fontSize:9,fontWeight:isActive?700:500,color:isActive?RED:G400}}>{lb}</span>
+          </button>;
+        })}
       </div>
     </div>
   );
@@ -356,122 +367,96 @@ export default function App(){
 
 /* ═══ DASHBOARD ═══ */
 function Dash({o,gd,nv,cl,gr,recSync}){
-  const act=o.filter(x=>!["cancelled"].includes(x.status));
   const byStatus=(s)=>o.filter(x=>Array.isArray(s)?s.includes(x.status):x.status===s).length;
   const inWork=o.filter(x=>["inwork","waiting","accepted"].includes(x.status));
   const actSamples=inWork.filter(x=>x.order_type==="образец");
   const actBatch=inWork.filter(x=>x.order_type==="партия");
   const lc=cl.filter(x=>x.palette==="Ленинградская");
-  const cc=cl.filter(x=>x.palette==="Caparol");
-  const lt=lc.length;const ct=cc.length;
-  // Считаем рецептуры напрямую из recSync — охватывает все цвета включая кастомные
+  const lt=lc.length;
   const ls=Object.keys(recSync).filter(k=>k.endsWith("__силикат")&&recSync[k]&&lc.some(c=>k===c.code+"__силикат")).length;
   const la=Object.keys(recSync).filter(k=>k.endsWith("__акрил")&&recSync[k]&&lc.some(c=>k===c.code+"__акрил")).length;
-  // Для Caparol — считаем из recSync по всем цветам у которых palette=Caparol в cl
-  const ccCodes=new Set(cc.map(c=>c.code));
-  const cs=Object.keys(recSync).filter(k=>k.endsWith("__силикат")&&recSync[k]&&ccCodes.has(k.replace("__силикат",""))).length;
-  const ca=Object.keys(recSync).filter(k=>k.endsWith("__акрил")&&recSync[k]&&ccCodes.has(k.replace("__акрил",""))).length;
   const todayD=todayStr();
   const todaySamples=o.filter(x=>x.order_type==="образец"&&!["cancelled"].includes(x.status)&&x.created_at?.slice(0,10)===todayD);
   const todayBatch=o.filter(x=>x.order_type==="партия"&&!["cancelled"].includes(x.status)&&x.created_at?.slice(0,10)===todayD);
 
   return <div>
     {/* ACTION ROW */}
-    <div style={{display:"flex",gap:8,marginBottom:10}}>
-      <button onClick={()=>nv("neworder")} style={{flex:1,padding:"12px",background:`linear-gradient(135deg,${RED},#b91c1c)`,color:W,border:"none",borderRadius:12,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 4px 16px ${RED}44`}}>🧪 Образец</button>
-      <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"12px",background:`linear-gradient(135deg,${BLU},#1e40af)`,color:W,border:"none",borderRadius:12,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 4px 16px ${BLU}44`}}>📦 Партия</button>
-      <button onClick={()=>nv("orders")} style={{padding:"12px 14px",background:W,color:INK,border:`1.5px solid ${G200}`,borderRadius:12,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:FF}}>Все</button>
+    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:10}}>
+      <button onClick={()=>nv("neworder")} style={{padding:"13px 8px",background:RED,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 2px 8px ${RED}40`}}>🧪 Образец</button>
+      <button onClick={()=>nv("neworder_партия")} style={{padding:"13px 8px",background:BLU,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 2px 8px ${BLU}40`}}>📦 Партия</button>
     </div>
 
-    {/* СТАТУСЫ — компактная строка */}
+    {/* КОМПАКТНАЯ СТРОКА СТАТУСОВ */}
     <div style={{...C,marginBottom:8,padding:"10px 12px"}}>
-      <div style={{fontSize:10,fontWeight:800,color:G400,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Заказы по статусам</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+        <div style={{fontSize:10,fontWeight:700,color:G400,textTransform:"uppercase",letterSpacing:1}}>Статусы заказов</div>
+        <button onClick={()=>nv("orders")} style={{fontSize:11,color:RED,fontWeight:700,background:"none",border:"none",cursor:"pointer",padding:0}}>все →</button>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:4}}>
         {[
-          ["Новые",byStatus(["new","accepted"]),RED,"new"],
-          ["В работе",byStatus(["inwork","waiting"]),ORG,"inwork"],
-          ["Готовы",byStatus("ready"),GRN,"ready"],
-          ["Получены",byStatus("received"),"#2563eb","received"],
-          ["Отгружены",byStatus("shipped"),G500,"shipped"],
-          ["Отменены",byStatus("cancelled"),"#18181b","cancelled"],
-        ].map(([l,v,c,k])=>
-          <div key={k} onClick={()=>nv("orders_status_"+k)} style={{textAlign:"center",cursor:"pointer",padding:"8px 4px",borderRadius:10,background:v>0?c+"0c":BG,border:`1px solid ${v>0?c+"22":G200}`}}>
-            <div style={{fontSize:20,fontWeight:700,color:v>0?c:G400,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{v}</div>
-            <div style={{fontSize:9,color:G500,marginTop:3,fontWeight:700,lineHeight:1.2}}>{l}</div>
+          ["Новые",byStatus(["new","accepted"]),RED],
+          ["Работа",byStatus(["inwork","waiting"]),ORG],
+          ["Готовы",byStatus("ready"),GRN],
+          ["Получены",byStatus("received"),BLU],
+          ["Отгружены",byStatus("shipped"),G400],
+          ["Отменены",byStatus("cancelled"),INK],
+        ].map(([l,v,c])=>
+          <div key={l} onClick={()=>nv("orders")} style={{textAlign:"center",cursor:"pointer",padding:"7px 2px",borderRadius:8,background:v>0?c+"0d":BG}}>
+            <div style={{fontSize:18,fontWeight:700,color:v>0?c:G300,lineHeight:1}}>{v}</div>
+            <div style={{fontSize:8,color:G400,marginTop:2,fontWeight:600,lineHeight:1.2,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{l}</div>
           </div>
         )}
       </div>
     </div>
 
-    {/* В РАБОТЕ — образцы vs партии */}
+    {/* В РАБОТЕ — компактная строка */}
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-      <div onClick={()=>nv("orders_образец")} style={{...C,padding:"12px 14px",cursor:"pointer",borderLeft:`3px solid ${RED}`}}>
-        <div style={{fontSize:10,color:RED,fontWeight:800,marginBottom:4}}>🧪 Образцы в работе</div>
-        <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{actSamples.length}</div>
-        {todaySamples.length>0&&<div style={{fontSize:10,color:GRN,marginTop:4,fontWeight:700}}>+{todaySamples.length} сегодня</div>}
+      <div onClick={()=>nv("orders_образец")} style={{...C,padding:"10px 12px",cursor:"pointer",borderLeft:`3px solid ${RED}`}}>
+        <div style={{fontSize:9,color:RED,fontWeight:700,marginBottom:3,textTransform:"uppercase",letterSpacing:.5}}>🧪 Образцы</div>
+        <div style={{fontSize:26,fontWeight:700,color:INK,lineHeight:1}}>{actSamples.length}</div>
+        {todaySamples.length>0&&<div style={{fontSize:9,color:GRN,marginTop:2,fontWeight:700}}>+{todaySamples.length} сегодня</div>}
       </div>
-      <div onClick={()=>nv("orders_партия")} style={{...C,padding:"12px 14px",cursor:"pointer",borderLeft:`3px solid ${BLU}`}}>
-        <div style={{fontSize:10,color:BLU,fontWeight:800,marginBottom:4}}>📦 Партии в работе</div>
-        <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{actBatch.length}</div>
-        {todayBatch.length>0&&<div style={{fontSize:10,color:GRN,marginTop:4,fontWeight:700}}>+{todayBatch.length} сегодня</div>}
-      </div>
-    </div>
-
-    {/* РЕЦЕПТУРЫ — Ленинградская + Caparol */}
-    <div style={{...C,marginBottom:8,padding:"12px 14px"}}>
-      <div style={{fontSize:10,fontWeight:800,color:G400,textTransform:"uppercase",letterSpacing:1,marginBottom:10}}>Рецептуры</div>
-      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-        <div onClick={()=>nv("recipes_L_силикат")} style={{cursor:"pointer",padding:"10px 12px",borderRadius:12,border:`1.5px solid ${RED}22`,background:RED+"06"}}>
-          <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Ленингр. · Силикат</div>
-          <div style={{display:"flex",alignItems:"baseline",gap:4}}>
-            <span style={{fontSize:22,fontWeight:700,color:RED,fontFamily:FD,fontStyle:"italic"}}>{ls}</span>
-            <span style={{fontSize:11,color:G400}}>/{lt}</span>
-          </div>
-          <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:RED,width:`${Math.max(2,lt>0?(ls/lt)*100:0)}%`}}/></div>
-        </div>
-        <div onClick={()=>nv("recipes_L_акрил")} style={{cursor:"pointer",padding:"10px 12px",borderRadius:12,border:`1.5px solid ${ORG}22`,background:ORG+"06"}}>
-          <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Ленингр. · Акрил</div>
-          <div style={{display:"flex",alignItems:"baseline",gap:4}}>
-            <span style={{fontSize:22,fontWeight:700,color:ORG,fontFamily:FD,fontStyle:"italic"}}>{la}</span>
-            <span style={{fontSize:11,color:G400}}>/{lt}</span>
-          </div>
-          <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:ORG,width:`${Math.max(2,lt>0?(la/lt)*100:0)}%`}}/></div>
-        </div>
-        <div style={{cursor:"pointer",padding:"10px 12px",borderRadius:12,border:`1.5px solid ${G200}`,background:BG}}>
-          <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Caparol · Силикат</div>
-          <div style={{display:"flex",alignItems:"baseline",gap:4}}>
-            <span style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>{cs}</span>
-            <span style={{fontSize:11,color:G400}}>/{ct}</span>
-          </div>
-          <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:INK,width:`${Math.max(2,ct>0?(cs/ct)*100:0)}%`}}/></div>
-        </div>
-        <div style={{cursor:"pointer",padding:"10px 12px",borderRadius:12,border:`1.5px solid ${G200}`,background:BG}}>
-          <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Caparol · Акрил</div>
-          <div style={{display:"flex",alignItems:"baseline",gap:4}}>
-            <span style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>{ca}</span>
-            <span style={{fontSize:11,color:G400}}>/{ct}</span>
-          </div>
-          <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:INK,width:`${Math.max(2,ct>0?(ca/ct)*100:0)}%`}}/></div>
-        </div>
+      <div onClick={()=>nv("orders_партия")} style={{...C,padding:"10px 12px",cursor:"pointer",borderLeft:`3px solid ${BLU}`}}>
+        <div style={{fontSize:9,color:BLU,fontWeight:700,marginBottom:3,textTransform:"uppercase",letterSpacing:.5}}>📦 Партии</div>
+        <div style={{fontSize:26,fontWeight:700,color:INK,lineHeight:1}}>{actBatch.length}</div>
+        {todayBatch.length>0&&<div style={{fontSize:9,color:GRN,marginTop:2,fontWeight:700}}>+{todayBatch.length} сегодня</div>}
       </div>
     </div>
 
-    {/* ПОСЛЕДНИЕ АКТИВНЫЕ */}
+    {/* РЕЦЕПТУРЫ — компактная строка */}
+    <div style={{...C,marginBottom:8,padding:"10px 12px"}}>
+      <div style={{fontSize:10,fontWeight:700,color:G400,textTransform:"uppercase",letterSpacing:1,marginBottom:8}}>Рецептуры · Ленинградская</div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+        {[[ls,lt,"Силикат",RED],[la,lt,"Акрил",ORG]].map(([v,t,lb,c])=>
+          <div key={lb} onClick={()=>nv(`recipes_L_${lb.toLowerCase()}`)} style={{cursor:"pointer",padding:"8px 10px",borderRadius:8,border:`1px solid ${c}22`,background:c+"07"}}>
+            <div style={{fontSize:9,color:G500,fontWeight:700,marginBottom:3}}>{lb}</div>
+            <div style={{display:"flex",alignItems:"baseline",gap:3}}>
+              <span style={{fontSize:20,fontWeight:700,color:c}}>{v}</span>
+              <span style={{fontSize:11,color:G400}}>/{t}</span>
+            </div>
+            <div style={{height:2,borderRadius:1,background:G200,marginTop:5}}><div style={{height:2,borderRadius:1,background:c,width:`${Math.max(2,t>0?(v/t)*100:0)}%`,transition:"width .3s"}}/></div>
+          </div>
+        )}
+      </div>
+    </div>
+
+    {/* ПОСЛЕДНИЕ АКТИВНЫЕ — 2 в ряд */}
     {inWork.length>0&&<div style={{...C,padding:0,overflow:"hidden",marginBottom:8}}>
-      <div style={{padding:"10px 14px 8px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${G200}`}}>
-        <div style={{fontSize:10,fontWeight:800,color:G500,letterSpacing:1,textTransform:"uppercase"}}>В работе</div>
-        {inWork.length>4&&<button onClick={()=>nv("orders")} style={{fontSize:11,color:RED,fontWeight:700,background:"none",border:"none",cursor:"pointer",padding:0}}>все {inWork.length} →</button>}
+      <div style={{padding:"9px 12px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${G200}`}}>
+        <div style={{fontSize:10,fontWeight:700,color:G500,letterSpacing:.5,textTransform:"uppercase"}}>В работе · {inWork.length}</div>
+        {inWork.length>6&&<button onClick={()=>nv("orders")} style={{fontSize:11,color:RED,fontWeight:700,background:"none",border:"none",cursor:"pointer",padding:0}}>все →</button>}
       </div>
-      {inWork.slice(0,4).map((x,i)=><div key={x.id} onClick={()=>gd(x.id)} style={{padding:"9px 14px",cursor:"pointer",background:W,borderBottom:i<Math.min(inWork.length,4)-1?`1px solid ${G200}50`:"none",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-        <div>
-          <div style={{display:"flex",gap:6,alignItems:"center",marginBottom:1}}>
-            <span style={{fontWeight:700,fontSize:13,color:INK}}>#{x.order_number}</span>
-            <TypeBadge type={x.order_type}/>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
+        {inWork.slice(0,6).map((x,i)=><div key={x.id} onClick={()=>gd(x.id)} style={{padding:"9px 12px",cursor:"pointer",background:W,borderRight:i%2===0?`1px solid ${G200}50`:"none",borderBottom:i<inWork.slice(0,6).length-2?`1px solid ${G200}50`:"none"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:2}}>
+            <span style={{fontWeight:700,fontSize:12,color:INK}}>#{x.order_number}</span>
+            <span style={{fontSize:9,background:SC[x.status]+"15",color:SC[x.status],padding:"1px 6px",borderRadius:6,fontWeight:700}}>{ST[x.status]}</span>
           </div>
-          <div style={{fontSize:11,color:G500}}>{x.color_code}{x.object_name?` · ${x.object_name}`:""}</div>
-        </div>
-        <Badge status={x.status}/>
-      </div>)}
+          <div style={{fontSize:11,fontWeight:600,color:INK,marginBottom:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{x.color_code}</div>
+          <div style={{fontSize:10,color:G400}}>{x.order_type==="образец"?`🧪 ${x.container_size||""}`:`📦 ${x.quantity}×20кг`}{x.primer_qty?` +грунт×${x.primer_qty}`:""}</div>
+          {x.object_name&&<div style={{fontSize:9,color:G400,marginTop:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>📍 {x.object_name}</div>}
+        </div>)}
+      </div>
     </div>}
   </div>
 }
@@ -583,6 +568,24 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
   </div>
 }
 
+/* ═══ ORDER CARD ═══ */
+function OrdCard({ord,onClick}){
+  return <div onClick={onClick} style={{...C,cursor:"pointer",borderTop:`3px solid ${SC[ord.status]}`,padding:"10px 11px"}}>
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+      <span style={{fontWeight:700,fontSize:13,color:INK}}>#{ord.order_number}</span>
+      <span style={{fontSize:9,background:SC[ord.status]+"15",color:SC[ord.status],padding:"2px 7px",borderRadius:6,fontWeight:700}}>{ST[ord.status]}</span>
+    </div>
+    <div style={{fontSize:12,fontWeight:700,color:INK,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ord.color_code}</div>
+    <div style={{fontSize:10,color:G500,marginBottom:2}}>
+      <span style={{background:ord.order_type==="образец"?REDL:BLUL,color:ord.order_type==="образец"?RED:BLU,padding:"1px 5px",borderRadius:4,fontWeight:700,fontSize:9}}>{ord.order_type==="образец"?"Обр":"Парт"}</span>
+      {" "}{ord.order_type==="образец"?(ord.container_size||""):`${ord.quantity||1}×20кг`}
+    </div>
+    {ord.primer_qty&&<div style={{fontSize:9,color:ORG,fontWeight:700,marginBottom:1}}>+ грунт ×{ord.primer_qty}</div>}
+    {ord.object_name&&<div style={{fontSize:9,color:G400,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>📍 {ord.object_name}</div>}
+    <div style={{fontSize:9,color:G300,marginTop:3}}>{fmtDateShort(ord.created_at)} · {ord.paint_type}</div>
+  </div>;
+}
+
 /* ═══ ORDER LIST ═══ */
 function OrdList({o,gd,initTypeFilter="all"}){
   const [f,sf]=useState("all");
@@ -626,35 +629,16 @@ function OrdList({o,gd,initTypeFilter="all"}){
 
     {grouped
       ?byDate.map(([date,items])=><div key={date} style={{marginBottom:12}}>
-          <div style={{fontSize:11,fontWeight:800,color:G500,letterSpacing:1,textTransform:"uppercase",marginBottom:6,padding:"0 4px"}}>
-            {date===todayStr()?"Сегодня":fmtDate(date)} · {items.length} заказ{items.length===1?"":"а"}
+          <div style={{fontSize:10,fontWeight:700,color:G400,letterSpacing:.8,textTransform:"uppercase",marginBottom:6,padding:"0 2px"}}>
+            {date===todayStr()?"Сегодня":fmtDate(date)} · {items.length}
           </div>
-          {items.map(ord=><div key={ord.id} onClick={()=>gd(ord.id)} style={{...C,marginBottom:6,cursor:"pointer",borderLeft:`4px solid ${SC[ord.status]}`,padding:"10px 14px"}}>
-            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:3}}>
-              <div style={{display:"flex",gap:6,alignItems:"center"}}>
-                <span style={{fontWeight:800,fontSize:14,color:INK}}>#{ord.order_number}</span>
-                <TypeBadge type={ord.order_type}/>
-              </div>
-              <Badge status={ord.status}/>
-            </div>
-            <div style={{fontSize:13,fontWeight:700,color:INK,marginBottom:1}}>{ord.color_code}</div>
-            <div style={{fontSize:11,color:G500}}>{ord.paint_type} · {ord.palette} · {ord.order_type==="образец"?`обр. ${ord.container_size}`:`${ord.quantity}×20кг`}</div>
-            {ord.object_name&&<div style={{fontSize:11,color:G400,marginTop:1}}>📍 {ord.object_name}</div>}
-          </div>)}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+          {items.map(ord=><OrdCard key={ord.id} ord={ord} onClick={()=>gd(ord.id)}/>)}
+          </div>
         </div>)
-      :list.map(ord=><div key={ord.id} onClick={()=>gd(ord.id)} style={{...C,marginBottom:6,cursor:"pointer",borderLeft:`4px solid ${SC[ord.status]}`,padding:"10px 14px"}}>
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:3}}>
-            <div style={{display:"flex",gap:6,alignItems:"center"}}>
-              <span style={{fontWeight:800,fontSize:14,color:INK}}>#{ord.order_number}</span>
-              <TypeBadge type={ord.order_type}/>
-            </div>
-            <Badge status={ord.status}/>
-          </div>
-          <div style={{fontSize:13,fontWeight:700,color:INK,marginBottom:1}}>{ord.color_code}</div>
-          <div style={{fontSize:11,color:G500}}>{ord.paint_type} · {ord.palette} · {ord.order_type==="образец"?`обр. ${ord.container_size}`:`${ord.quantity}×20кг`}</div>
-          {ord.object_name&&<div style={{fontSize:11,color:G400,marginTop:1}}>📍 {ord.object_name}</div>}
-          <div style={{fontSize:10,color:G400,marginTop:1}}>{fmtDate(ord.created_at)}</div>
-        </div>)}
+      :<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+        {list.map(ord=><OrdCard key={ord.id} ord={ord} onClick={()=>gd(ord.id)}/>)}
+      </div>}
   </div>
 }
 
@@ -995,18 +979,17 @@ function RecDB({cl,gr,sr,addColor,initFilter,dbRecipes,setDbRecipes,orders,objec
       <input value={s} onChange={e=>{sss(e.target.value);spg(0)}} placeholder="Поиск..." style={{...I,marginBottom:10}}/>
       <div style={{fontSize:11,color:G400,marginBottom:8,fontWeight:700}}>Найдено: {fl.length} · Стр. {pg+1}/{tp||1}</div>
 
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5,marginBottom:10}}>
       {pd.map(c=>{const a=gr(c.code,"силикат"),b=gr(c.code,"акрил");
-        return <div key={c.palette+c.code} style={{...C,marginBottom:4,padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",cursor:"pointer"}} onClick={()=>setColorDetail({code:c.code,palette:c.palette})}>
-          <div>
-            <div style={{fontWeight:700,fontSize:14,color:INK}}>{c.code}</div>
-            <div style={{fontSize:11,color:G400}}>{c.palette}</div>
-          </div>
-          <div style={{display:"flex",gap:4}} onClick={e=>e.stopPropagation()}>
-            <button onClick={()=>setEditColor({code:c.code,palette:c.palette})} style={{background:BG,color:G500,border:`1.5px solid ${G200}`,borderRadius:8,padding:"4px 10px",fontSize:11,cursor:"pointer",fontFamily:FF}}>✏</button>
-            <button onClick={()=>sr(c.code,"силикат",!a)} style={{background:a?GRNL:REDL,color:a?GRN:RED,border:`1.5px solid ${a?GRN:RED}33`,borderRadius:8,padding:"5px 10px",fontSize:11,cursor:"pointer",fontWeight:800,fontFamily:FF}}>С:{a?"✓":"✕"}</button>
-            <button onClick={()=>sr(c.code,"акрил",!b)} style={{background:b?GRNL:REDL,color:b?GRN:RED,border:`1.5px solid ${b?GRN:RED}33`,borderRadius:8,padding:"5px 10px",fontSize:11,cursor:"pointer",fontWeight:800,fontFamily:FF}}>А:{b?"✓":"✕"}</button>
+        return <div key={c.palette+c.code} style={{...C,padding:"9px 10px",cursor:"pointer",borderTop:`2px solid ${a||b?GRN:G200}`}} onClick={()=>setColorDetail({code:c.code,palette:c.palette})}>
+          <div style={{fontWeight:600,fontSize:12,color:INK,marginBottom:4,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{c.code}</div>
+          <div style={{display:"flex",gap:3}} onClick={e=>e.stopPropagation()}>
+            <button onClick={()=>sr(c.code,"силикат",!a)} style={{flex:1,background:a?GRNL:REDL,color:a?GRN:RED,border:"none",borderRadius:5,padding:"3px 0",fontSize:10,cursor:"pointer",fontWeight:700,fontFamily:FF}}>С{a?"✓":"✕"}</button>
+            <button onClick={()=>sr(c.code,"акрил",!b)} style={{flex:1,background:b?GRNL:REDL,color:b?GRN:RED,border:"none",borderRadius:5,padding:"3px 0",fontSize:10,cursor:"pointer",fontWeight:700,fontFamily:FF}}>А{b?"✓":"✕"}</button>
+            <button onClick={e=>{e.stopPropagation();setEditColor({code:c.code,palette:c.palette})}} style={{background:BG,color:G400,border:"none",borderRadius:5,padding:"3px 5px",fontSize:10,cursor:"pointer",fontFamily:FF}}>✏</button>
           </div>
         </div>})}
+      </div>
 
       {tp>1&&<div style={{display:"flex",justifyContent:"center",gap:10,marginTop:14}}>
         <button disabled={pg===0} onClick={()=>spg(pg-1)} style={{padding:"10px 22px",borderRadius:10,border:`1.5px solid ${G200}`,background:W,cursor:pg===0?"default":"pointer",opacity:pg===0?.3:1,fontFamily:FF,fontWeight:800}}>←</button>
@@ -1299,18 +1282,109 @@ function ObjDetail({obj,samples,addSample,updateSample,deleteSample,addDbRecipe,
 
 /* ═══ EXPORT ═══ */
 function Exp({o,cl,gr}){
-  const xr=pf=>{let d=cl;if(pf!=="all")d=d.filter(c=>c.palette===pf);const r=d.map(c=>({"Палитра":c.palette,"Код":c.code,"Силикат":gr(c.code,"силикат")?"Есть":"Нет","Акрил":gr(c.code,"акрил")?"Есть":"Нет"}));const ws=XLSX.utils.json_to_sheet(r);ws["!cols"]=[{wch:16},{wch:22},{wch:10},{wch:10}];const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Рецептуры");XLSX.writeFile(wb,"stm_tda_recipes.xlsx")};
-  const xo=m=>{let d=m==="active"?o.filter(x=>!["shipped","cancelled"].includes(x.status)):o;const r=d.map(x=>({"№":x.order_number,"Дата":fmtDate(x.created_at),"Статус":ST[x.status],"Цвет":x.color_code,"Палитра":x.palette,"Краска":x.paint_type,"Тип":x.order_type,"Тара":x.container_size,"Кол-во":x.quantity,"Объект":x.object_name||"","Рецептура":x.has_recipe?"Есть":"Нет","Создал":x.created_by}));const ws=XLSX.utils.json_to_sheet(r);const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Заказы");XLSX.writeFile(wb,m==="active"?"stm_tda_active.xlsx":"stm_tda_all.xlsx")};
-  const B=({onClick,title,sub,color=RED})=><div onClick={onClick} style={{...C,marginBottom:8,cursor:"pointer",borderLeft:`4px solid ${color}`,padding:16}}><div style={{fontWeight:800,fontSize:15,color:INK}}>{title}</div><div style={{fontSize:12,color:G500,marginTop:3}}>{sub}</div></div>;
+  const [sortField,setSortField]=useState("created_at");
+  const [sortDir,setSortDir]=useState("desc");
+  const [filterStatus,setFilterStatus]=useState("all");
+  const [filterType,setFilterType]=useState("all");
+
+  const sortOrders=(data)=>{
+    const sorted=[...data].sort((a,b)=>{
+      let va=a[sortField]||"",vb=b[sortField]||"";
+      if(sortField==="order_number"){va=Number(va);vb=Number(vb);}
+      if(sortField==="quantity"){va=Number(va)||0;vb=Number(vb)||0;}
+      if(va<vb)return sortDir==="asc"?-1:1;
+      if(va>vb)return sortDir==="asc"?1:-1;
+      return 0;
+    });
+    return sorted;
+  };
+
+  const filteredOrders=useMemo(()=>{
+    let d=o;
+    if(filterStatus!=="all")d=d.filter(x=>x.status===filterStatus);
+    if(filterType!=="all")d=d.filter(x=>x.order_type===filterType);
+    return sortOrders(d);
+  },[o,filterStatus,filterType,sortField,sortDir]);
+
+  const xo=()=>{
+    const r=filteredOrders.map(x=>({"№":x.order_number,"Дата":fmtDate(x.created_at),"Статус":ST[x.status],"Цвет":x.color_code,"Палитра":x.palette,"Краска":x.paint_type,"Тип":x.order_type,"Тара":x.container_size,"Кол-во":x.quantity||1,"Грунт (канистр)":x.primer_qty||0,"Объект":x.object_name||"","Площадь м²":x.facade_area||"","Рецептура":x.has_recipe?"Есть":"Нет","Создал":x.created_by,"Желаемый срок":x.desired_date?fmtDate(x.desired_date):""}));
+    const ws=XLSX.utils.json_to_sheet(r);
+    ws["!cols"]=[{wch:6},{wch:12},{wch:14},{wch:22},{wch:14},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8},{wch:24},{wch:10},{wch:10},{wch:10},{wch:14}];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"Заказы");
+    XLSX.writeFile(wb,`stm_orders_${new Date().toISOString().slice(0,10)}.xlsx`);
+  };
+
+  const xr=pf=>{
+    let d=cl;if(pf!=="all")d=d.filter(c=>c.palette===pf);
+    const r=d.map(c=>({"Палитра":c.palette,"Код":c.code,"Силикат":gr(c.code,"силикат")?"Есть":"Нет","Акрил":gr(c.code,"акрил")?"Есть":"Нет"}));
+    const ws=XLSX.utils.json_to_sheet(r);ws["!cols"]=[{wch:16},{wch:22},{wch:10},{wch:10}];
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Рецептуры");
+    XLSX.writeFile(wb,"stm_tda_recipes.xlsx");
+  };
+
+  const SortBtn=({field,label})=><button onClick={()=>{if(sortField===field)setSortDir(d=>d==="asc"?"desc":"asc");else{setSortField(field);setSortDir("desc")}}} style={{padding:"5px 10px",border:`1.5px solid ${sortField===field?RED:G200}`,borderRadius:7,background:sortField===field?REDL:W,color:sortField===field?RED:G500,fontSize:11,fontWeight:sortField===field?700:500,cursor:"pointer",fontFamily:FF}}>{label}{sortField===field?(sortDir==="desc"?" ↓":" ↑"):""}</button>;
+
   const allPalettes=[...new Set(cl.map(c=>c.palette))];
+
   return <div>
-    <Tag>Экспорт</Tag>
-    <div style={{fontSize:28,fontWeight:700,color:INK,marginBottom:20,fontFamily:FD,fontStyle:"italic"}}>Экспорт .xlsx</div>
-    <Tag>Рецептуры по палитрам</Tag>
-    {allPalettes.map(p=><B key={p} onClick={()=>xr(p)} title={p} sub={`${cl.filter(c=>c.palette===p).length} цветов`} color={p==="Ленинградская"?RED:p==="Caparol"?ORG:INK}/>)}
-    <B onClick={()=>xr("all")} title="Все палитры" sub={`${cl.length} цветов`} color={INK}/>
-    <div style={{marginTop:20}}><Tag>Заказы</Tag></div>
-    <B onClick={()=>xo("active")} title="Активные" sub={`${o.filter(x=>!["shipped","cancelled"].includes(x.status)).length} шт.`} color={GRN}/>
-    <B onClick={()=>xo("all")} title="Все заказы" sub={`${o.length} шт.`} color={GRN}/>
+    <div style={{fontSize:22,fontWeight:700,color:INK,marginBottom:14,fontFamily:FD,fontStyle:"italic"}}>Экспорт</div>
+
+    {/* ЗАКАЗЫ */}
+    <div style={{...C,marginBottom:10}}>
+      <div style={{fontSize:11,fontWeight:700,color:G400,textTransform:"uppercase",letterSpacing:.8,marginBottom:10}}>Заказы · {filteredOrders.length} шт.</div>
+
+      {/* Фильтры */}
+      <div style={{marginBottom:8}}>
+        <div style={{fontSize:10,color:G400,marginBottom:4}}>Статус</div>
+        <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+          {[["all","Все"],["new","Новые"],["inwork","В работе"],["ready","Готовы"],["shipped","Отгружены"],["cancelled","Отменены"]].map(([k,l])=>
+            <button key={k} onClick={()=>setFilterStatus(k)} style={{padding:"4px 9px",border:`1.5px solid ${filterStatus===k?RED:G200}`,borderRadius:6,background:filterStatus===k?REDL:W,color:filterStatus===k?RED:G500,fontSize:11,fontWeight:filterStatus===k?700:500,cursor:"pointer",fontFamily:FF}}>{l}</button>
+          )}
+        </div>
+      </div>
+      <div style={{marginBottom:10}}>
+        <div style={{fontSize:10,color:G400,marginBottom:4}}>Тип</div>
+        <div style={{display:"flex",gap:4}}>
+          {[["all","Все"],["образец","Образцы"],["партия","Партии"]].map(([k,l])=>
+            <button key={k} onClick={()=>setFilterType(k)} style={{padding:"4px 9px",border:`1.5px solid ${filterType===k?BLU:G200}`,borderRadius:6,background:filterType===k?BLUL:W,color:filterType===k?BLU:G500,fontSize:11,fontWeight:filterType===k?700:500,cursor:"pointer",fontFamily:FF}}>{l}</button>
+          )}
+        </div>
+      </div>
+
+      {/* Сортировка */}
+      <div style={{marginBottom:12}}>
+        <div style={{fontSize:10,color:G400,marginBottom:4}}>Сортировка</div>
+        <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+          <SortBtn field="created_at" label="По дате"/>
+          <SortBtn field="order_number" label="По номеру"/>
+          <SortBtn field="color_code" label="По цвету"/>
+          <SortBtn field="object_name" label="По объекту"/>
+          <SortBtn field="quantity" label="По кол-ву"/>
+        </div>
+      </div>
+
+      <button onClick={xo} style={{width:"100%",padding:"12px",background:`linear-gradient(135deg,${GRN},#15803d)`,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF,boxShadow:`0 2px 8px ${GRN}40`}}>
+        ↓ Скачать .xlsx ({filteredOrders.length} строк)
+      </button>
+    </div>
+
+    {/* РЕЦЕПТУРЫ */}
+    <div style={{...C}}>
+      <div style={{fontSize:11,fontWeight:700,color:G400,textTransform:"uppercase",letterSpacing:.8,marginBottom:10}}>Рецептуры</div>
+      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+        {allPalettes.map(p=><div key={p} onClick={()=>xr(p)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 12px",borderRadius:8,border:`1.5px solid ${G200}`,cursor:"pointer",background:BG}}>
+          <div>
+            <div style={{fontSize:13,fontWeight:600,color:INK}}>{p}</div>
+            <div style={{fontSize:10,color:G400}}>{cl.filter(c=>c.palette===p).length} цветов</div>
+          </div>
+          <span style={{fontSize:12,color:RED,fontWeight:700}}>↓ xlsx</span>
+        </div>)}
+        <div onClick={()=>xr("all")} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 12px",borderRadius:8,border:`1.5px solid ${RED}33`,cursor:"pointer",background:REDL}}>
+          <div style={{fontSize:13,fontWeight:700,color:RED}}>Все палитры</div>
+          <span style={{fontSize:12,color:RED,fontWeight:700}}>↓ xlsx</span>
+        </div>
+      </div>
+    </div>
   </div>
 }
