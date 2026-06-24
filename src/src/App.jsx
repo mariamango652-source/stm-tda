@@ -19,17 +19,18 @@ const fmtDateShort=d=>d?new Date(d).toLocaleDateString("ru-RU",{day:"2-digit",mo
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const LS={get:(k,d)=>{try{const v=localStorage.getItem("stm_tda_"+k);return v?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem("stm_tda_"+k,JSON.stringify(v))}catch{}}};
 
-const BG="#f2f0ed";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G100="#f4f4f5";const G200="#e4e4e7";const G300="#d4d4d8";const G400="#a1a1aa";const G500="#71717a";const RED="#dc2626";const REDL="#fef2f2";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#1d4ed8";const BLUL="#eff6ff";const FD="Georgia,'Times New Roman',serif";
-const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=16;const SH="0 1px 2px rgba(0,0,0,.03),0 4px 16px rgba(0,0,0,.05)";
-const C={background:W,borderRadius:R,padding:20,boxShadow:SH};
-const I={width:"100%",padding:"13px 16px",border:`1.5px solid ${G200}`,borderRadius:12,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
+const BG="#f5f5f5";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G100="#f5f5f5";const G200="#e8e8e8";const G300="#d1d1d1";const G400="#a3a3a3";const G500="#737373";const RED="#ef4444";const REDL="#fff5f5";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#1d4ed8";const BLUL="#eff6ff";const FD="'Inter',-apple-system,'Segoe UI',sans-serif";
+const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=16;const SH="0 1px 4px rgba(0,0,0,.06),0 2px 12px rgba(0,0,0,.06)";
+const C={background:W,borderRadius:R,padding:16,boxShadow:SH};
+const I={width:"100%",padding:"12px 16px",border:"none",borderBottom:`2px solid ${G200}`,borderRadius:0,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:"transparent",outline:"none"};
+const IB={width:"100%",padding:"12px 16px",border:`1.5px solid ${G200}`,borderRadius:12,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
 
-function Badge({status}){return <span style={{background:SC[status]+"12",color:SC[status],padding:"4px 14px",borderRadius:20,fontSize:11,fontWeight:800,letterSpacing:.5}}>{ST[status]}</span>}
-function TypeBadge({type}){const c=type==="образец"?RED:BLU;const bg=type==="образец"?REDL:BLUL;const icon=type==="образец"?"🧪":"📦";return <span style={{background:bg,color:c,padding:"3px 10px",borderRadius:8,fontSize:11,fontWeight:800}}>{icon} {type}</span>}
-function RB({has,label}){return <span style={{padding:"4px 12px",borderRadius:8,fontSize:11,fontWeight:800,color:has?GRN:RED,background:has?GRNL:REDL,border:`1.5px solid ${has?GRN:RED}22`}}>{label}: {has?"есть":"нет"}</span>}
-function Pill({active,onClick,children,c=RED}){return <button onClick={onClick} style={{padding:"8px 16px",borderRadius:10,border:active?`2px solid ${c}`:`1.5px solid ${G200}`,background:active?c+"0c":W,color:active?c:G500,fontSize:13,fontWeight:active?800:600,cursor:"pointer",whiteSpace:"nowrap",fontFamily:FF}}>{children}</button>}
-function Tag({children}){return <div style={{fontSize:11,fontWeight:800,color:RED,marginBottom:8,letterSpacing:1.5,textTransform:"uppercase"}}>{children}</div>}
-function Chevron({open}){return <span style={{color:G400,fontSize:12,transition:"transform .2s",display:"inline-block",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▼</span>}
+function Badge({status}){return <span style={{background:SC[status]+"15",color:SC[status],padding:"3px 12px",borderRadius:20,fontSize:11,fontWeight:700}}>{ST[status]}</span>}
+function TypeBadge({type}){const c=type==="образец"?RED:BLU;const bg=type==="образец"?REDL:BLUL;return <span style={{background:bg,color:c,padding:"2px 9px",borderRadius:6,fontSize:11,fontWeight:700}}>{type==="образец"?"Образец":"Партия"}</span>}
+function RB({has,label}){return <span style={{padding:"3px 10px",borderRadius:6,fontSize:11,fontWeight:700,color:has?GRN:RED,background:has?GRNL:REDL}}>{label}: {has?"есть":"нет"}</span>}
+function Pill({active,onClick,children,c=RED}){return <button onClick={onClick} style={{padding:"7px 15px",borderRadius:20,border:"none",background:active?c:G100,color:active?W:G500,fontSize:13,fontWeight:active?700:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:FF,transition:"all .15s"}}>{children}</button>}
+function Tag({children}){return <div style={{fontSize:11,fontWeight:600,color:G400,marginBottom:8,letterSpacing:1,textTransform:"uppercase"}}>{children}</div>}
+function Chevron({open}){return <span style={{color:G400,fontSize:11,transition:"transform .2s",display:"inline-block",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▾</span>}
 
 /* ═══ COLLAPSIBLE SECTION ═══ */
 function Section({title,children,defaultOpen=false,accent=G400}){
@@ -132,10 +133,11 @@ export default function App(){
     setRecSync(p=>({...p,[code+"__"+type]:val}));
   };
 
-  /* addColor — теперь возвращает промис, обновляет список немедленно */
+  /* addColor — возвращает промис, обновляет список немедленно */
   const addColor=async(palette,code)=>{
     if(!code.trim()||colors.some(c=>c.palette===palette&&c.code===code.trim()))return false;
-    await SB.from("colors").insert({palette,code:code.trim(),silicate_recipe:false,acrylic_recipe:false});
+    const{error}=await SB.from("colors").insert({palette,code:code.trim(),silicate_recipe:false,acrylic_recipe:false});
+    if(error){console.error("addColor error:",error.message);alert("Ошибка сохранения цвета: "+error.message);return false;}
     setColors(p=>[...p,{palette,code:code.trim()}]);
     return true;
   };
@@ -327,19 +329,21 @@ export default function App(){
     }
   };
 
-  if(loading)return <div style={{fontFamily:FF,background:BG,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{textAlign:"center"}}><div style={{fontSize:24,fontWeight:900,color:RED,marginBottom:8}}>СТМ ТДА</div><div style={{color:G500}}>Загрузка...</div></div></div>;
+  if(loading)return <div style={{fontFamily:FF,background:BG,minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{textAlign:"center"}}><div style={{fontSize:22,fontWeight:700,color:RED,marginBottom:6}}>СТМ ТДА</div><div style={{color:G400,fontSize:14}}>Загрузка...</div></div></div>;
 
   return(
     <div style={{fontFamily:FF,background:BG,minHeight:"100vh",maxWidth:480,margin:"0 auto"}}>
-      <div style={{background:INK,padding:"16px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100}}>
-        <div style={{display:"flex",alignItems:"center",gap:14}}>
-          <svg width="40" height="40" viewBox="0 0 40 40" fill="none"><defs><linearGradient id="lr" x1="0" y1="0" x2="40" y2="40"><stop offset="0%" stopColor="#ef4444"/><stop offset="100%" stopColor="#b91c1c"/></linearGradient></defs><rect width="40" height="40" rx="10" fill="url(#lr)"/><rect x=".75" y=".75" width="38.5" height="38.5" rx="9.25" stroke="#fff" strokeOpacity=".18" strokeWidth="1.5" fill="none"/><path d="M20 8L10 32h4.5l2.2-5.5h6.6L25.5 32H30L20 8zm-1.8 15L20 14.5l1.8 8.5h-3.6z" fill="#fff"/></svg>
+      <div style={{background:W,padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100,borderBottom:`1px solid ${G200}`}}>
+        <div style={{display:"flex",alignItems:"center",gap:12}}>
+          <div style={{width:36,height:36,borderRadius:10,background:RED,display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M20 6L8 34h6l2.8-7h6.4L25.2 34H32L20 6zm-2.2 18L20 12l2.2 12h-4.4z" fill="#fff"/></svg>
+          </div>
           <div>
-            <div style={{fontSize:18,fontWeight:700,color:W,letterSpacing:2,fontFamily:FD}}>СТМ ТДА</div>
-            <div style={{fontSize:9,color:"#71717a",letterSpacing:3,textTransform:"uppercase",fontWeight:600}}>заказы · объекты · рецептуры</div>
+            <div style={{fontSize:16,fontWeight:700,color:INK,letterSpacing:.5}}>СТМ ТДА</div>
+            <div style={{fontSize:9,color:G400,letterSpacing:2,textTransform:"uppercase",fontWeight:500}}>заказы · объекты · рецептуры</div>
           </div>
         </div>
-        <div style={{padding:"6px 14px",background:"#27272a",borderRadius:20,fontSize:12,color:"#a1a1aa",fontWeight:600}}>{user}</div>
+        <div style={{padding:"5px 14px",background:G100,borderRadius:20,fontSize:13,color:G500,fontWeight:600,border:`1px solid ${G200}`}}>{user}</div>
       </div>
       <div style={{padding:"16px 14px 100px"}}>
         {page==="dash"&&<Dash o={orders} gd={gd} nv={nv} cl={colors} gr={gr} recSync={recSync}/>}
@@ -351,13 +355,12 @@ export default function App(){
         {page==="objdetail"&&oid&&<ObjDetail obj={objects.find(x=>x.id===oid)} samples={samples.filter(s=>s.object_id===oid)} addSample={addSample} updateSample={updateSample} deleteSample={deleteSample} addDbRecipe={addDbRecipe} dbRecipes={dbRecipes} user={user} cl={colors} gr={gr} gb={()=>setPage("objects")} ao={ao} orders={orders.filter(o=>o.object_id===oid)}/>}
         {page==="export"&&<Exp o={orders} cl={colors} gr={gr}/>}
       </div>
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:"rgba(255,255,255,.97)",backdropFilter:"blur(20px)",borderTop:`1px solid ${G200}`,display:"flex",zIndex:100,paddingBottom:"env(safe-area-inset-bottom)"}}>
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:W,borderTop:`1px solid ${G200}`,display:"flex",zIndex:100,paddingBottom:"env(safe-area-inset-bottom)"}}>
         {[["dash","Главная","M3 12l9-9 9 9M9 21V12h6v9"],["neworder","Заказ","M12 5v14M5 12h14"],["orders","Заказы","M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"],["objects","Объекты","M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"],["recipes","Рецептуры","M9 3h6M10 3v7l-6 8a1.5 1.5 0 001.2 2.4h13.6A1.5 1.5 0 0020 18l-6-8V3"],["export","Экспорт","M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"]].map(([id,lb,d])=>{
           const isActive=page===id||(id==="neworder"&&(page==="neworder"||page==="neworder_партия"));
-          return <button key={id} onClick={()=>nv(id)} style={{flex:1,padding:"9px 0 7px",border:"none",background:"transparent",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:2,fontFamily:FF,position:"relative"}}>
-            {isActive&&<div style={{position:"absolute",top:0,left:"50%",transform:"translateX(-50%)",width:24,height:2.5,borderRadius:2,background:RED}}/>}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={isActive?RED:G400} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>
-            <span style={{fontSize:9,fontWeight:isActive?700:500,color:isActive?RED:G400}}>{lb}</span>
+          return <button key={id} onClick={()=>nv(id)} style={{flex:1,padding:"10px 0 8px",border:"none",background:"transparent",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:3,fontFamily:FF}}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={isActive?RED:G300} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={d}/></svg>
+            <span style={{fontSize:10,fontWeight:isActive?700:400,color:isActive?RED:G400}}>{lb}</span>
           </button>;
         })}
       </div>
@@ -385,10 +388,10 @@ function Dash({o,gd,nv,cl,gr,recSync}){
   const todayBatch=o.filter(x=>x.order_type==="партия"&&!["cancelled"].includes(x.status)&&x.created_at?.slice(0,10)===todayD);
 
   return <div>
-    <div style={{display:"flex",gap:8,marginBottom:10}}>
-      <button onClick={()=>nv("neworder")} style={{flex:1,padding:"12px",background:`linear-gradient(135deg,${RED},#b91c1c)`,color:W,border:"none",borderRadius:12,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 4px 16px ${RED}44`}}>🧪 Образец</button>
-      <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"12px",background:`linear-gradient(135deg,${BLU},#1e40af)`,color:W,border:"none",borderRadius:12,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF,display:"flex",alignItems:"center",justifyContent:"center",gap:6,boxShadow:`0 4px 16px ${BLU}44`}}>📦 Партия</button>
-      <button onClick={()=>nv("orders")} style={{padding:"12px 14px",background:W,color:INK,border:`1.5px solid ${G200}`,borderRadius:12,fontSize:12,fontWeight:700,cursor:"pointer",fontFamily:FF}}>Все</button>
+    <div style={{display:"flex",gap:8,marginBottom:12}}>
+      <button onClick={()=>nv("neworder")} style={{flex:1,padding:"13px 8px",background:RED,color:W,border:"none",borderRadius:12,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:FF}}>+ Образец</button>
+      <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"13px 8px",background:INK,color:W,border:"none",borderRadius:12,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:FF}}>+ Партия</button>
+      <button onClick={()=>nv("orders")} style={{padding:"13px 14px",background:W,color:G500,border:`1px solid ${G200}`,borderRadius:12,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:FF}}>Все</button>
     </div>
 
     <div style={{...C,marginBottom:8,padding:"10px 12px"}}>
@@ -494,7 +497,7 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
 
     {step>=3&&pal&&<div style={{...C,marginBottom:10}}>
       <Tag>Цвет ({cl.filter(c=>c.palette===pal).length})</Tag>
-      <input value={srch} onChange={e=>{ssrch(e.target.value);scc("")}} placeholder="Поиск по коду..." style={{...I,marginBottom:10}}/>
+      <input value={srch} onChange={e=>{ssrch(e.target.value);scc("")}} placeholder="Поиск по коду..." style={{...IB,marginBottom:10}}/>
       {cc&&sel&&<div style={{padding:16,background:hr?GRNL:REDL,borderRadius:14,marginBottom:10,borderLeft:`4px solid ${hr?GRN:RED}`}}>
         <div style={{fontWeight:900,fontSize:17,color:INK,marginBottom:8}}>✓ {cc}</div>
         <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
@@ -551,9 +554,9 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
 
     {step>=5&&<div style={{...C,marginBottom:10}}>
       <Tag>Детали</Tag>
-      <input value={obj} onChange={e=>sobj(e.target.value)} placeholder="Объект / адрес" style={{...I,marginBottom:8}}/>
-      <input value={dd} onChange={e=>sdd(e.target.value)} type="date" style={{...I,marginBottom:8}}/>
-      <textarea value={cmt} onChange={e=>scmt(e.target.value)} placeholder="Комментарий..." rows={2} style={{...I,resize:"vertical",marginBottom:14}}/>
+      <input value={obj} onChange={e=>sobj(e.target.value)} placeholder="Объект / адрес" style={{...IB,marginBottom:8}}/>
+      <input value={dd} onChange={e=>sdd(e.target.value)} type="date" style={{...IB,marginBottom:8}}/>
+      <textarea value={cmt} onChange={e=>scmt(e.target.value)} placeholder="Комментарий..." rows={2} style={{...IB,resize:"vertical",marginBottom:14}}/>
       <div style={{background:REDL,borderRadius:14,padding:18,borderLeft:`4px solid ${RED}`}}>
         <Tag>Калькулятор</Tag>
         <input value={area} onChange={e=>sar(e.target.value.replace(/[^0-9.]/g,""))} placeholder="Площадь фасада, м²" style={I}/>
@@ -565,7 +568,7 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
       </div>
     </div>}
 
-    {ok&&<button onClick={go} style={{width:"100%",padding:"18px",background:`linear-gradient(135deg,${GRN},#15803d)`,color:W,border:"none",borderRadius:14,fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:FF,boxShadow:`0 8px 24px ${GRN}44`}}>Создать заказ</button>}
+    {ok&&<button onClick={go} style={{width:"100%",padding:"18px",background:GRN,color:W,border:"none",borderRadius:14,fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:FF,boxShadow:`0 8px 24px ${GRN}44`}}>Создать заказ</button>}
   </div>
 }
 
@@ -718,8 +721,8 @@ function OrdDet({o,uo,ac,del,user,gr,gb,addKp,delKp}){
       </div>
       {/* Дата готовности */}
       <div style={{display:"flex",gap:8,alignItems:"center"}}>
-        <input type="date" value={ed} onChange={e=>sed(e.target.value)} style={{...I,flex:1,padding:"9px 12px",fontSize:13}}/>
-        <button onClick={()=>uo(o.id,{estimated_date:ed})} style={{padding:"9px 16px",background:`linear-gradient(135deg,${RED},#b91c1c)`,color:W,border:"none",borderRadius:10,fontWeight:800,cursor:"pointer",fontSize:13,fontFamily:FF}}>OK</button>
+        <input type="date" value={ed} onChange={e=>sed(e.target.value)} style={{...IB,flex:1,padding:"9px 12px",fontSize:13}}/>
+        <button onClick={()=>uo(o.id,{estimated_date:ed})} style={{padding:"9px 16px",background:RED,color:W,border:"none",borderRadius:10,fontWeight:800,cursor:"pointer",fontSize:13,fontFamily:FF}}>OK</button>
       </div>
       {o.estimated_date&&<div style={{fontSize:12,color:GRN,marginTop:6,fontWeight:700}}>✓ Готовность: {fmtDate(o.estimated_date)}</div>}
     </div>
@@ -752,14 +755,14 @@ function OrdDet({o,uo,ac,del,user,gr,gb,addKp,delKp}){
       </div>)}
       {/* Форма добавления КП */}
       {showKpForm&&<div style={{padding:"12px 16px",background:BLUL}}>
-        <input value={kpLink} onChange={e=>setKpLink(e.target.value)} placeholder="Ссылка на КП (Google Docs, PDF...)" style={{...I,marginBottom:8,padding:"9px 12px",fontSize:13}}/>
-        <textarea value={kpText} onChange={e=>setKpText(e.target.value)} placeholder="Текстовое описание или данные КП..." rows={2} style={{...I,marginBottom:8,resize:"vertical",padding:"9px 12px",fontSize:13}}/>
+        <input value={kpLink} onChange={e=>setKpLink(e.target.value)} placeholder="Ссылка на КП (Google Docs, PDF...)" style={{...IB,marginBottom:8,padding:"9px 12px",fontSize:13}}/>
+        <textarea value={kpText} onChange={e=>setKpText(e.target.value)} placeholder="Текстовое описание или данные КП..." rows={2} style={{...IB,marginBottom:8,resize:"vertical",padding:"9px 12px",fontSize:13}}/>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-          <input value={kpSupplier} onChange={e=>setKpSupplier(e.target.value)} placeholder="Поставщик (ВАП)" style={{...I,padding:"9px 12px",fontSize:13}}/>
-          <input value={kpDate} onChange={e=>setKpDate(e.target.value)} type="date" style={{...I,padding:"9px 12px",fontSize:13}}/>
+          <input value={kpSupplier} onChange={e=>setKpSupplier(e.target.value)} placeholder="Поставщик (ВАП)" style={{...IB,padding:"9px 12px",fontSize:13}}/>
+          <input value={kpDate} onChange={e=>setKpDate(e.target.value)} type="date" style={{...IB,padding:"9px 12px",fontSize:13}}/>
         </div>
         <div style={{display:"flex",gap:8}}>
-          <input value={kpPrice} onChange={e=>setKpPrice(e.target.value.replace(/[^0-9.]/g,""))} placeholder="Цена, ₽/кг" style={{...I,flex:1,padding:"9px 12px",fontSize:13}}/>
+          <input value={kpPrice} onChange={e=>setKpPrice(e.target.value.replace(/[^0-9.]/g,""))} placeholder="Цена, ₽/кг" style={{...IB,flex:1,padding:"9px 12px",fontSize:13}}/>
           <button onClick={handleAddKp} style={{padding:"9px 18px",background:BLU,color:W,border:"none",borderRadius:10,fontWeight:800,cursor:"pointer",fontFamily:FF}}>Добавить</button>
         </div>
       </div>}
@@ -792,8 +795,8 @@ function OrdDet({o,uo,ac,del,user,gr,gb,addKp,delKp}){
       </div>)}
       {(!o.comments||!o.comments.length)&&<div style={{fontSize:13,color:G400,marginBottom:10}}>Пока пусто</div>}
       <div style={{display:"flex",gap:8,marginTop:8}}>
-        <input value={nc} onChange={e=>snc(e.target.value)} placeholder="Комментарий..." style={{...I,flex:1,padding:"9px 12px",fontSize:13}} onKeyDown={e=>{if(e.key==="Enter"&&nc.trim()){ac(o.id,nc,user);snc("")}}}/>
-        <button onClick={()=>{if(nc.trim()){ac(o.id,nc,user);snc("")}}} style={{padding:"9px 16px",background:`linear-gradient(135deg,${RED},#b91c1c)`,color:W,border:"none",borderRadius:10,fontWeight:800,cursor:"pointer",fontFamily:FF}}>↑</button>
+        <input value={nc} onChange={e=>snc(e.target.value)} placeholder="Комментарий..." style={{...IB,flex:1,padding:"9px 12px",fontSize:13}} onKeyDown={e=>{if(e.key==="Enter"&&nc.trim()){ac(o.id,nc,user);snc("")}}}/>
+        <button onClick={()=>{if(nc.trim()){ac(o.id,nc,user);snc("")}}} style={{padding:"9px 16px",background:RED,color:W,border:"none",borderRadius:10,fontWeight:800,cursor:"pointer",fontFamily:FF}}>↑</button>
       </div>
     </Section>
 
@@ -855,7 +858,7 @@ function RecipeAddBlock({order,gr,uo}){
         </div>
         <div style={{fontSize:11,color:G500,marginTop:2}}>{order.color_code} · {order.paint_type} · {order.palette}</div>
       </div>
-      {!alreadyHas&&<button onClick={handleSave} disabled={saving} style={{padding:"8px 16px",background:`linear-gradient(135deg,${GRN},#15803d)`,color:W,border:"none",borderRadius:10,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF}}>
+      {!alreadyHas&&<button onClick={handleSave} disabled={saving} style={{padding:"8px 16px",background:GRN,color:W,border:"none",borderRadius:10,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF}}>
         {saving?"...":"+ В рецептуры"}
       </button>}
     </div>
@@ -883,7 +886,7 @@ function EditColorModal({code,palette,gr,sr,onClose}){
           Акрил: {gr(code,"акрил")?"✓ есть":"✕ нет"}
         </button>
       </div>
-      <button onClick={onClose} style={{width:"100%",padding:"12px",background:`linear-gradient(135deg,${GRN},#15803d)`,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:FF}}>Готово</button>
+      <button onClick={onClose} style={{width:"100%",padding:"12px",background:GRN,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:FF}}>Готово</button>
     </div>
   </div>;
 }
@@ -968,16 +971,16 @@ function RecDB({cl,gr,sr,addColor,initFilter,dbRecipes,setDbRecipes,orders,objec
           <button onClick={()=>setUseCustomPalette(false)} style={{flex:1,padding:"7px",border:!useCustomPalette?`2px solid ${RED}`:`1.5px solid ${G200}`,borderRadius:8,background:!useCustomPalette?REDL:W,color:!useCustomPalette?RED:G500,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:FF}}>В существующую</button>
           <button onClick={()=>setUseCustomPalette(true)} style={{flex:1,padding:"7px",border:useCustomPalette?`2px solid ${RED}`:`1.5px solid ${G200}`,borderRadius:8,background:useCustomPalette?REDL:W,color:useCustomPalette?RED:G500,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:FF}}>Новая палитра</button>
         </div>
-        {useCustomPalette&&<input value={newPalette} onChange={e=>setNewPalette(e.target.value)} placeholder="Название новой палитры (напр. Тиккурила)" style={{...I,marginBottom:8,padding:"10px 14px"}}/>}
+        {useCustomPalette&&<input value={newPalette} onChange={e=>setNewPalette(e.target.value)} placeholder="Название новой палитры (напр. Тиккурила)" style={{...IB,marginBottom:8,padding:"10px 14px"}}/>}
         {!useCustomPalette&&<div style={{fontSize:12,color:G500,marginBottom:8}}>Палитра: <b style={{color:INK}}>{getTargetPalette()}</b></div>}
         <div style={{display:"flex",gap:8}}>
-          <input value={newCode} onChange={e=>setNewCode(e.target.value)} placeholder="Код цвета" style={{...I,flex:1,padding:"10px 14px"}} onKeyDown={e=>{if(e.key==="Enter")handleAdd()}}/>
+          <input value={newCode} onChange={e=>setNewCode(e.target.value)} placeholder="Код цвета" style={{...IB,flex:1,padding:"10px 14px"}} onKeyDown={e=>{if(e.key==="Enter")handleAdd()}}/>
           <button onClick={handleAdd} style={{padding:"10px 18px",background:INK,color:W,border:"none",borderRadius:10,fontWeight:800,cursor:"pointer",fontFamily:FF}}>+</button>
         </div>
         {addMsg&&<div style={{marginTop:6,fontSize:13,fontWeight:700,color:addMsg.startsWith("✓")?GRN:RED}}>{addMsg}</div>}
       </div>}
 
-      <input value={s} onChange={e=>{sss(e.target.value);spg(0)}} placeholder="Поиск..." style={{...I,marginBottom:10}}/>
+      <input value={s} onChange={e=>{sss(e.target.value);spg(0)}} placeholder="Поиск..." style={{...IB,marginBottom:10}}/>
       <div style={{fontSize:11,color:G400,marginBottom:8,fontWeight:700}}>Найдено: {fl.length} · Стр. {pg+1}/{tp||1}</div>
 
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5,marginBottom:10}}>
@@ -1097,16 +1100,16 @@ function ObjList({objects,samples,addObject,updateObject,oid,setOid,nv,user}){
 
     {showForm&&<div style={{...C,marginBottom:12,padding:16,border:`2px dashed ${RED}44`}}>
       <Tag>Новый объект</Tag>
-      <input value={name} onChange={e=>setName(e.target.value)} placeholder="Адрес объекта *" style={{...I,marginBottom:8}}/>
-      <input value={contact} onChange={e=>setContact(e.target.value)} placeholder="Архитектор / заказчик" style={{...I,marginBottom:8}}/>
+      <input value={name} onChange={e=>setName(e.target.value)} placeholder="Адрес объекта *" style={{...IB,marginBottom:8}}/>
+      <input value={contact} onChange={e=>setContact(e.target.value)} placeholder="Архитектор / заказчик" style={{...IB,marginBottom:8}}/>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-        <input value={areaTotal} onChange={e=>setAreaTotal(e.target.value.replace(/[^0-9.]/g,""))} placeholder="Площадь фасада, м²" style={{...I,padding:"10px 12px"}}/>
-        <input value={areaPaint} onChange={e=>setAreaPaint(e.target.value.replace(/[^0-9.]/g,""))} placeholder="Под окраску, м²" style={{...I,padding:"10px 12px"}}/>
+        <input value={areaTotal} onChange={e=>setAreaTotal(e.target.value.replace(/[^0-9.]/g,""))} placeholder="Площадь фасада, м²" style={{...IB,padding:"10px 12px"}}/>
+        <input value={areaPaint} onChange={e=>setAreaPaint(e.target.value.replace(/[^0-9.]/g,""))} placeholder="Под окраску, м²" style={{...IB,padding:"10px 12px"}}/>
       </div>
       <div style={{display:"flex",gap:6,marginBottom:8}}>
         {["силикат","акрил","оба"].map(t=><button key={t} onClick={()=>setPaintTypeO(paintType===t?"":t)} style={{flex:1,padding:"8px 4px",border:paintType===t?`2px solid ${t==="акрил"?ORG:RED}`:`1.5px solid ${G200}`,borderRadius:8,background:paintType===t?t==="акрил"?ORGL:REDL:W,color:paintType===t?t==="акрил"?ORG:RED:G500,fontSize:12,fontWeight:800,cursor:"pointer",fontFamily:FF,textTransform:"uppercase"}}>{t}</button>)}
       </div>
-      <textarea value={objNotes} onChange={e=>setObjNotes(e.target.value)} placeholder="Примечания..." rows={2} style={{...I,marginBottom:10,resize:"vertical"}}/>
+      <textarea value={objNotes} onChange={e=>setObjNotes(e.target.value)} placeholder="Примечания..." rows={2} style={{...IB,marginBottom:10,resize:"vertical"}}/>
       <button onClick={handleAdd} disabled={!name.trim()||submitting} style={{width:"100%",padding:"12px",background:name.trim()?`linear-gradient(135deg,${RED},#b91c1c)`:G200,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:800,cursor:name.trim()?"pointer":"default",fontFamily:FF}}>
         {submitting?"Создаём...":"Создать объект"}
       </button>
@@ -1224,12 +1227,12 @@ function ObjDetail({obj,samples,addSample,updateSample,deleteSample,addDbRecipe,
       <div style={{display:"flex",gap:6,marginBottom:10}}>
         {["силикат","акрил"].map(t=><button key={t} onClick={()=>setPt(t)} style={{flex:1,padding:"8px",border:pt===t?`2px solid ${t==="силикат"?RED:ORG}`:`1.5px solid ${G200}`,borderRadius:8,background:pt===t?t==="силикат"?REDL:ORGL:W,color:pt===t?t==="силикат"?RED:ORG:G500,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF,textTransform:"uppercase"}}>{t}</button>)}
       </div>
-      <input value={srch} onChange={e=>{setSrch(e.target.value);setCc("")}} placeholder="Поиск цвета..." style={{...I,marginBottom:6,padding:"10px 14px"}}/>
+      <input value={srch} onChange={e=>{setSrch(e.target.value);setCc("")}} placeholder="Поиск цвета..." style={{...IB,marginBottom:6,padding:"10px 14px"}}/>
       {cc&&<div style={{padding:"8px 12px",background:GRNL,borderRadius:8,marginBottom:6,fontSize:13,fontWeight:700,color:GRN}}>✓ {cc}</div>}
       <div style={{maxHeight:160,overflowY:"auto",borderRadius:10,border:`1.5px solid ${G200}`,marginBottom:8}}>
         {fl.map(c=><div key={c.code} onClick={()=>{setCc(c.code);setSrch(c.code)}} style={{padding:"9px 12px",cursor:"pointer",background:cc===c.code?REDL:W,borderBottom:`1px solid ${G200}50`,fontSize:13,fontWeight:cc===c.code?800:500,color:INK}}>{c.code}</div>)}
       </div>
-      <input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Примечание (необязательно)" style={{...I,marginBottom:10,padding:"10px 14px"}}/>
+      <input value={notes} onChange={e=>setNotes(e.target.value)} placeholder="Примечание (необязательно)" style={{...IB,marginBottom:10,padding:"10px 14px"}}/>
       <button onClick={handleAddSample} disabled={!cc||submitting} style={{width:"100%",padding:"11px",background:cc?`linear-gradient(135deg,${RED},#b91c1c)`:G200,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:800,cursor:cc?"pointer":"default",fontFamily:FF}}>
         {submitting?"Добавляем...":"Добавить образец"}
       </button>
@@ -1262,11 +1265,11 @@ function ObjDetail({obj,samples,addSample,updateSample,deleteSample,addDbRecipe,
         <div style={{fontSize:16,fontWeight:800,color:INK,marginBottom:4}}>Согласовать образец</div>
         <div style={{fontSize:13,color:G500,marginBottom:14}}>{approveModal.color_code} · {approveModal.paint_type} · {approveModal.palette}</div>
         <div style={{fontSize:12,fontWeight:700,color:G500,marginBottom:6,textTransform:"uppercase",letterSpacing:.5}}>Состав рецептуры (необязательно)</div>
-        <textarea value={composition} onChange={e=>setComposition(e.target.value)} placeholder="Например: база А 85%, пигмент Л-5 15%..." rows={3} style={{...I,marginBottom:14,resize:"vertical"}}/>
+        <textarea value={composition} onChange={e=>setComposition(e.target.value)} placeholder="Например: база А 85%, пигмент Л-5 15%..." rows={3} style={{...IB,marginBottom:14,resize:"vertical"}}/>
         <div style={{fontSize:11,color:G400,marginBottom:14}}>Цвет автоматически попадёт в банк рецептур.</div>
         <div style={{display:"flex",gap:8}}>
           <button onClick={()=>{setApproveModal(null);setComposition("")}} style={{flex:1,padding:"12px",background:W,border:`1.5px solid ${G200}`,borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF}}>Отмена</button>
-          <button onClick={handleApprove} disabled={approving} style={{flex:2,padding:"12px",background:`linear-gradient(135deg,${GRN},#15803d)`,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:FF,boxShadow:`0 4px 12px ${GRN}44`}}>
+          <button onClick={handleApprove} disabled={approving} style={{flex:2,padding:"12px",background:GRN,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:800,cursor:"pointer",fontFamily:FF,boxShadow:`0 4px 12px ${GRN}44`}}>
             {approving?"Сохраняем...":"✓ Согласовать + в банк"}
           </button>
         </div>
@@ -1365,7 +1368,7 @@ function Exp({o,cl,gr}){
         </div>
       </div>
 
-      <button onClick={xo} style={{width:"100%",padding:"12px",background:`linear-gradient(135deg,${GRN},#15803d)`,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF,boxShadow:`0 2px 8px ${GRN}40`}}>
+      <button onClick={xo} style={{width:"100%",padding:"12px",background:GRN,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF,boxShadow:`0 2px 8px ${GRN}40`}}>
         ↓ Скачать .xlsx ({filteredOrders.length} строк)
       </button>
     </div>
