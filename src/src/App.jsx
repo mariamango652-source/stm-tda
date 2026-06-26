@@ -1387,4 +1387,213 @@ function Exp({o,cl,gr}){
       </div>
     </div>
   </div>
+/* ═══ EXPORT ═══ */
+function Exp({o,cl,gr}){
+  const [filterPaintType,setFilterPaintType]=useState("all");
+  const [filterStatus,setFilterStatus]=useState("all");
+  const [filterOrderType,setFilterOrderType]=useState("all");
+  const [filterPrimer,setFilterPrimer]=useState("all");
+  const [filterObject,setFilterObject]=useState("");
+  const [filterContractor,setFilterContractor]=useState("");
+  const [dateFrom,setDateFrom]=useState("");
+  const [dateTo,setDateTo]=useState("");
+  const [sortField,setSortField]=useState("created_at");
+  const [sortDir,setSortDir]=useState("desc");
+
+  // Уникальные объекты и подрядчики для выпадающих списков
+  const allObjects=useMemo(()=>[...new Set(o.map(x=>x.object_name).filter(Boolean))].sort(),[o]);
+  const allContractors=useMemo(()=>[...new Set(o.map(x=>x.contractor_name||x.created_by).filter(Boolean))].sort(),[o]);
+
+  const filteredOrders=useMemo(()=>{
+    let d=o;
+    if(filterPaintType!=="all")d=d.filter(x=>x.paint_type===filterPaintType);
+    if(filterStatus!=="all")d=d.filter(x=>x.status===filterStatus);
+    if(filterOrderType!=="all")d=d.filter(x=>x.order_type===filterOrderType);
+    if(filterPrimer==="yes")d=d.filter(x=>x.primer_qty&&x.primer_qty>0);
+    if(filterPrimer==="no")d=d.filter(x=>!x.primer_qty||x.primer_qty===0);
+    if(filterObject)d=d.filter(x=>x.object_name&&x.object_name.toLowerCase().includes(filterObject.toLowerCase()));
+    if(filterContractor)d=d.filter(x=>(x.contractor_name||x.created_by||"").toLowerCase().includes(filterContractor.toLowerCase()));
+    if(dateFrom)d=d.filter(x=>x.created_at&&x.created_at.slice(0,10)>=dateFrom);
+    if(dateTo)d=d.filter(x=>x.created_at&&x.created_at.slice(0,10)<=dateTo);
+    return [...d].sort((a,b)=>{
+      let va=a[sortField]||"",vb=b[sortField]||"";
+      if(sortField==="order_number"){va=Number(va);vb=Number(vb);}
+      if(sortField==="quantity"){va=Number(va)||0;vb=Number(vb)||0;}
+      if(va<vb)return sortDir==="asc"?-1:1;
+      if(va>vb)return sortDir==="asc"?1:-1;
+      return 0;
+    });
+  },[o,filterPaintType,filterStatus,filterOrderType,filterPrimer,filterObject,filterContractor,dateFrom,dateTo,sortField,sortDir]);
+
+  // Сброс всех фильтров
+  const resetFilters=()=>{
+    setFilterPaintType("all");setFilterStatus("all");setFilterOrderType("all");
+    setFilterPrimer("all");setFilterObject("");setFilterContractor("");
+    setDateFrom("");setDateTo("");
+  };
+  const hasActiveFilters=filterPaintType!=="all"||filterStatus!=="all"||filterOrderType!=="all"||filterPrimer!=="all"||filterObject||filterContractor||dateFrom||dateTo;
+
+  // Экспорт заказов
+  const xo=()=>{
+    const r=filteredOrders.map(x=>({"№":x.order_number,"Дата":fmtDate(x.created_at),"Статус":ST[x.status],"Тип краски":x.paint_type,"Цвет":x.color_code,"Палитра":x.palette,"Тип заказа":x.order_type,"Тара":x.container_size||"20кг","Кол-во (шт)":x.quantity||1,"Грунт (канистр)":x.primer_qty||0,"Объект":x.object_name||"","Площадь м²":x.facade_area||"","Рецептура":x.has_recipe?"Есть":"Нет","Создал":x.created_by,"Желаемый срок":x.desired_date?fmtDate(x.desired_date):""}));
+    const ws=XLSX.utils.json_to_sheet(r);
+    ws["!cols"]=[{wch:6},{wch:12},{wch:14},{wch:12},{wch:22},{wch:14},{wch:10},{wch:8},{wch:10},{wch:14},{wch:28},{wch:10},{wch:10},{wch:10},{wch:14}];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,"Заказы");
+    const today=new Date().toISOString().slice(0,10);
+    const suffix=[filterPaintType!=="all"?filterPaintType:"",filterOrderType!=="all"?filterOrderType:"",filterObject||""].filter(Boolean).join("_");
+    XLSX.writeFile(wb,`stm_${suffix||"все"}_${today}.xlsx`);
+  };
+
+  // Экспорт рецептур
+  const xr=(pf)=>{
+    let d=cl;if(pf!=="all")d=d.filter(c=>c.palette===pf);
+    const r=d.map(c=>({"Палитра":c.palette,"Код":c.code,"Силикат":gr(c.code,"силикат")?"Есть":"Нет","Акрил":gr(c.code,"акрил")?"Есть":"Нет"}));
+    const ws=XLSX.utils.json_to_sheet(r);ws["!cols"]=[{wch:16},{wch:22},{wch:10},{wch:10}];
+    const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Рецептуры");
+    XLSX.writeFile(wb,"stm_tda_recipes.xlsx");
+  };
+
+  const SortBtn=({field,label})=><button onClick={()=>{if(sortField===field)setSortDir(d=>d==="asc"?"desc":"asc");else{setSortField(field);setSortDir("desc")}}} style={{padding:"5px 10px",border:`1.5px solid ${sortField===field?RED:G200}`,borderRadius:7,background:sortField===field?REDL:W,color:sortField===field?RED:G500,fontSize:11,fontWeight:sortField===field?700:500,cursor:"pointer",fontFamily:FF}}>{label}{sortField===field?(sortDir==="desc"?" ↓":" ↑"):""}</button>;
+
+  const FBtn=({val,cur,set,label,c=RED})=><button onClick={()=>set(cur===val?"all":val)} style={{padding:"4px 9px",border:`1.5px solid ${cur===val?c:G200}`,borderRadius:6,background:cur===val?c+"12":W,color:cur===val?c:G500,fontSize:11,fontWeight:cur===val?700:500,cursor:"pointer",fontFamily:FF,whiteSpace:"nowrap"}}>{label}</button>;
+
+  const allPalettes=[...new Set(cl.map(c=>c.palette))];
+
+  // Счётчики для превью
+  const cntSil=filteredOrders.filter(x=>x.paint_type==="силикат").length;
+  const cntAcr=filteredOrders.filter(x=>x.paint_type==="акрил").length;
+  const cntSmp=filteredOrders.filter(x=>x.order_type==="образец").length;
+  const cntBat=filteredOrders.filter(x=>x.order_type==="партия").length;
+  const cntPrm=filteredOrders.filter(x=>x.primer_qty&&x.primer_qty>0).length;
+  const totalKg=filteredOrders.filter(x=>x.order_type==="партия").reduce((s,x)=>(s+(x.quantity||1)*20),0);
+
+  return <div>
+    <div style={{fontSize:22,fontWeight:700,color:INK,marginBottom:14,fontFamily:FD,fontStyle:"italic"}}>Экспорт</div>
+
+    {/* ═══ ЗАКАЗЫ ═══ */}
+    <div style={{...C,marginBottom:10}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
+        <div style={{fontSize:11,fontWeight:700,color:G400,textTransform:"uppercase",letterSpacing:.8}}>Заказы</div>
+        {hasActiveFilters&&<button onClick={resetFilters} style={{fontSize:11,color:RED,fontWeight:700,background:REDL,border:"none",borderRadius:6,padding:"3px 8px",cursor:"pointer",fontFamily:FF}}>✕ Сбросить фильтры</button>}
+      </div>
+
+      {/* Тип краски */}
+      <div style={{marginBottom:8}}>
+        <div style={{fontSize:10,color:G400,fontWeight:700,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Тип краски</div>
+        <div style={{display:"flex",gap:4}}>
+          <FBtn val="all" cur={filterPaintType} set={setFilterPaintType} label="Все" c={G500}/>
+          <FBtn val="силикат" cur={filterPaintType} set={setFilterPaintType} label="Силикат" c={RED}/>
+          <FBtn val="акрил" cur={filterPaintType} set={setFilterPaintType} label="Акрил" c={ORG}/>
+        </div>
+      </div>
+
+      {/* Тип заказа */}
+      <div style={{marginBottom:8}}>
+        <div style={{fontSize:10,color:G400,fontWeight:700,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Тип заказа</div>
+        <div style={{display:"flex",gap:4}}>
+          <FBtn val="all" cur={filterOrderType} set={setFilterOrderType} label="Все" c={G500}/>
+          <FBtn val="образец" cur={filterOrderType} set={setFilterOrderType} label="🧪 Образцы" c={RED}/>
+          <FBtn val="партия" cur={filterOrderType} set={setFilterOrderType} label="📦 Партии" c={BLU}/>
+        </div>
+      </div>
+
+      {/* Грунтовка */}
+      <div style={{marginBottom:8}}>
+        <div style={{fontSize:10,color:G400,fontWeight:700,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Грунтовка</div>
+        <div style={{display:"flex",gap:4}}>
+          <FBtn val="all" cur={filterPrimer} set={setFilterPrimer} label="Все" c={G500}/>
+          <FBtn val="yes" cur={filterPrimer} set={setFilterPrimer} label="С грунтом" c={ORG}/>
+          <FBtn val="no" cur={filterPrimer} set={setFilterPrimer} label="Без грунта" c={G500}/>
+        </div>
+      </div>
+
+      {/* Статус */}
+      <div style={{marginBottom:8}}>
+        <div style={{fontSize:10,color:G400,fontWeight:700,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Статус</div>
+        <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+          <FBtn val="all" cur={filterStatus} set={setFilterStatus} label="Все" c={G500}/>
+          {Object.entries(ST).map(([k,v])=><FBtn key={k} val={k} cur={filterStatus} set={setFilterStatus} label={v} c={SC[k]}/>)}
+        </div>
+      </div>
+
+      {/* Даты */}
+      <div style={{marginBottom:8}}>
+        <div style={{fontSize:10,color:G400,fontWeight:700,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Период (дата создания)</div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+          <div>
+            <div style={{fontSize:9,color:G400,marginBottom:2}}>с</div>
+            <input type="date" value={dateFrom} onChange={e=>setDateFrom(e.target.value)} style={{...I,padding:"8px 10px",fontSize:12}}/>
+          </div>
+          <div>
+            <div style={{fontSize:9,color:G400,marginBottom:2}}>по</div>
+            <input type="date" value={dateTo} onChange={e=>setDateTo(e.target.value)} style={{...I,padding:"8px 10px",fontSize:12}}/>
+          </div>
+        </div>
+      </div>
+
+      {/* Объект / подрядчик */}
+      <div style={{marginBottom:12}}>
+        <div style={{fontSize:10,color:G400,fontWeight:700,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Объект / подрядчик</div>
+        <input value={filterObject} onChange={e=>setFilterObject(e.target.value)} placeholder="Поиск по адресу объекта..." list="obj-list" style={{...I,marginBottom:6,padding:"8px 10px",fontSize:12}}/>
+        <datalist id="obj-list">{allObjects.map(o=><option key={o} value={o}/>)}</datalist>
+        <input value={filterContractor} onChange={e=>setFilterContractor(e.target.value)} placeholder="Поиск по подрядчику / создателю..." list="ctr-list" style={{...I,padding:"8px 10px",fontSize:12}}/>
+        <datalist id="ctr-list">{allContractors.map(c=><option key={c} value={c}/>)}</datalist>
+      </div>
+
+      {/* Сортировка */}
+      <div style={{marginBottom:12}}>
+        <div style={{fontSize:10,color:G400,fontWeight:700,marginBottom:4,textTransform:"uppercase",letterSpacing:.5}}>Сортировка</div>
+        <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+          <SortBtn field="created_at" label="Дата"/>
+          <SortBtn field="order_number" label="№"/>
+          <SortBtn field="paint_type" label="Краска"/>
+          <SortBtn field="color_code" label="Цвет"/>
+          <SortBtn field="object_name" label="Объект"/>
+          <SortBtn field="quantity" label="Кол-во"/>
+        </div>
+      </div>
+
+      {/* Превью итогов */}
+      <div style={{background:BG,borderRadius:10,padding:"10px 12px",marginBottom:12}}>
+        <div style={{fontSize:10,color:G400,fontWeight:700,marginBottom:6,textTransform:"uppercase",letterSpacing:.5}}>Итого по выборке</div>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:6}}>
+          {[
+            ["Строк",filteredOrders.length,INK],
+            ["Силикат",cntSil,RED],
+            ["Акрил",cntAcr,ORG],
+            ["Образцы",cntSmp,RED],
+            ["Партии",cntBat,BLU],
+            ["С грунтом",cntPrm,ORG],
+          ].map(([l,v,c])=><div key={l} style={{textAlign:"center"}}>
+            <div style={{fontSize:16,fontWeight:700,color:v>0?c:G300}}>{v}</div>
+            <div style={{fontSize:9,color:G400,fontWeight:600}}>{l}</div>
+          </div>)}
+        </div>
+        {totalKg>0&&<div style={{marginTop:8,fontSize:12,color:G500,textAlign:"center"}}>Партий всего: <b style={{color:BLU}}>{totalKg} кг</b> ({Math.round(totalKg/20)} вёдер)</div>}
+      </div>
+
+      <button onClick={xo} style={{width:"100%",padding:"13px",background:`linear-gradient(135deg,${GRN},#15803d)`,color:W,border:"none",borderRadius:10,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF,boxShadow:`0 2px 8px ${GRN}40`}}>
+        ↓ Скачать .xlsx ({filteredOrders.length} строк)
+      </button>
+    </div>
+
+    {/* ═══ РЕЦЕПТУРЫ ═══ */}
+    <div style={{...C}}>
+      <div style={{fontSize:11,fontWeight:700,color:G400,textTransform:"uppercase",letterSpacing:.8,marginBottom:10}}>Рецептуры</div>
+      <div style={{display:"flex",flexDirection:"column",gap:6}}>
+        {allPalettes.map(p=><div key={p} onClick={()=>xr(p)} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 12px",borderRadius:8,border:`1.5px solid ${G200}`,cursor:"pointer",background:BG}}>
+          <div>
+            <div style={{fontSize:13,fontWeight:600,color:INK}}>{p}</div>
+            <div style={{fontSize:10,color:G400}}>{cl.filter(c=>c.palette===p).length} цветов · Сил: {cl.filter(c=>c.palette===p&&gr(c.code,"силикат")).length} · Акр: {cl.filter(c=>c.palette===p&&gr(c.code,"акрил")).length}</div>
+          </div>
+          <span style={{fontSize:12,color:RED,fontWeight:700}}>↓ xlsx</span>
+        </div>)}
+        <div onClick={()=>xr("all")} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"9px 12px",borderRadius:8,border:`1.5px solid ${RED}33`,cursor:"pointer",background:REDL}}>
+          <div style={{fontSize:13,fontWeight:700,color:RED}}>Все палитры вместе</div>
+          <span style={{fontSize:12,color:RED,fontWeight:700}}>↓ xlsx</span>
+        </div>
+      </div>
+    </div>
+  </div>
 }
