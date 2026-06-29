@@ -19,17 +19,22 @@ const fmtDateShort=d=>d?new Date(d).toLocaleDateString("ru-RU",{day:"2-digit",mo
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const LS={get:(k,d)=>{try{const v=localStorage.getItem("stm_tda_"+k);return v?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem("stm_tda_"+k,JSON.stringify(v))}catch{}}};
 
-const BG="#f4f4f6";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G100="#f4f4f6";const G200="#e4e4e7";const G300="#d1d1d1";const G400="#a1a1aa";const G500="#71717a";const RED="#e63030";const REDL="#fff1f1";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#2563eb";const BLUL="#eff6ff";const NAVY="#1e3a5f";const FD="'Inter',-apple-system,'Segoe UI',sans-serif";
-const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=16;const SH="0 2px 8px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04)";
-const C={background:W,borderRadius:R,padding:16,boxShadow:SH,border:`1px solid ${G200}`};
-const I={width:"100%",padding:"12px 16px",border:"none",borderBottom:`2px solid ${G200}`,borderRadius:0,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:"transparent",outline:"none"};
-const IB={width:"100%",padding:"12px 16px",border:`1.5px solid ${G200}`,borderRadius:12,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
+const BG="#f2f3f5";const W="#ffffff";const INK="#0a0a0a";const INK2="#1a1a1a";const G100="#f2f3f5";const G200="#e8e8ec";const G300="#d0d0d8";const G400="#9898a6";const G500="#6b6b7a";const RED="#ef3124";const REDL="#fff0ef";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#2563eb";const BLUL="#eff6ff";const NAVY="#1e3a5f";const FD="'Inter',-apple-system,'Segoe UI',sans-serif";
+const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=20;const SH="0 4px 20px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04)";
+/* Карточка — только тень, без рамки, как у Альфа-Банка */
+const C={background:W,borderRadius:R,padding:20,boxShadow:SH};
+/* Поле ввода — underline стиль */
+const I={width:"100%",padding:"14px 0",border:"none",borderBottom:`1.5px solid ${G300}`,borderRadius:0,fontSize:16,boxSizing:"border-box",fontFamily:FF,color:INK,background:"transparent",outline:"none"};
+/* Поле с рамкой (поиск и т.п.) */
+const IB={width:"100%",padding:"13px 16px",border:`1.5px solid ${G200}`,borderRadius:14,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
+/* Основная кнопка — Альфа-стиль */
+const BTN={width:"100%",padding:"17px",background:RED,color:W,border:"none",borderRadius:14,fontSize:16,fontWeight:700,cursor:"pointer",fontFamily:FF,letterSpacing:0.2};
 
-function Badge({status}){return <span style={{background:SC[status]+"15",color:SC[status],padding:"3px 12px",borderRadius:20,fontSize:11,fontWeight:700}}>{ST[status]}</span>}
-function TypeBadge({type}){const c=type==="образец"?RED:BLU;const bg=type==="образец"?REDL:BLUL;return <span style={{background:bg,color:c,padding:"2px 9px",borderRadius:6,fontSize:11,fontWeight:700}}>{type==="образец"?"Образец":"Партия"}</span>}
-function RB({has,label}){return <span style={{padding:"3px 10px",borderRadius:6,fontSize:11,fontWeight:700,color:has?GRN:RED,background:has?GRNL:REDL}}>{label}: {has?"есть":"нет"}</span>}
-function Pill({active,onClick,children,c=RED}){return <button onClick={onClick} style={{padding:"7px 15px",borderRadius:20,border:"none",background:active?c:G100,color:active?W:G500,fontSize:13,fontWeight:active?700:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:FF,transition:"all .15s"}}>{children}</button>}
-function Tag({children}){return <div style={{fontSize:11,fontWeight:600,color:G400,marginBottom:8,letterSpacing:1,textTransform:"uppercase"}}>{children}</div>}
+function Badge({status}){return <span style={{background:SC[status]+"18",color:SC[status],padding:"4px 12px",borderRadius:50,fontSize:11,fontWeight:700,letterSpacing:0.2}}>{ST[status]}</span>}
+function TypeBadge({type}){const c=type==="образец"?RED:NAVY;const bg=type==="образец"?REDL:BLUL;return <span style={{background:bg,color:c,padding:"3px 10px",borderRadius:50,fontSize:11,fontWeight:700}}>{type==="образец"?"Образец":"Партия"}</span>}
+function RB({has,label}){return <span style={{padding:"4px 12px",borderRadius:50,fontSize:11,fontWeight:700,color:has?GRN:RED,background:has?GRNL:REDL}}>{label}: {has?"есть":"нет"}</span>}
+function Pill({active,onClick,children,c=RED}){return <button onClick={onClick} style={{padding:"8px 18px",borderRadius:50,border:"none",background:active?INK:G200,color:active?W:G500,fontSize:13,fontWeight:active?700:500,cursor:"pointer",whiteSpace:"nowrap",fontFamily:FF,transition:"all .15s"}}>{children}</button>}
+function Tag({children}){return <div style={{fontSize:11,fontWeight:700,color:G400,marginBottom:10,letterSpacing:1.2,textTransform:"uppercase"}}>{children}</div>}
 function Chevron({open}){return <span style={{color:G400,fontSize:11,transition:"transform .2s",display:"inline-block",transform:open?"rotate(180deg)":"rotate(0deg)"}}>▾</span>}
 
 /* ═══ COLLAPSIBLE SECTION ═══ */
@@ -341,7 +346,7 @@ export default function App(){
 
   return(
     <div style={{fontFamily:FF,background:BG,minHeight:"100vh",maxWidth:480,margin:"0 auto"}}>
-      <div style={{background:W,padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100,borderBottom:`1px solid ${G200}`}}>
+      <div style={{background:W,padding:"14px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100,boxShadow:"0 1px 0 #e8e8ec"}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
           <div style={{width:36,height:36,borderRadius:10,background:RED,display:"flex",alignItems:"center",justifyContent:"center"}}>
             <svg width="20" height="20" viewBox="0 0 40 40" fill="none"><path d="M20 6L8 34h6l2.8-7h6.4L25.2 34H32L20 6zm-2.2 18L20 12l2.2 12h-4.4z" fill="#fff"/></svg>
@@ -351,7 +356,7 @@ export default function App(){
             <div style={{fontSize:9,color:G400,letterSpacing:2,textTransform:"uppercase",fontWeight:500}}>заказы · объекты · рецептуры</div>
           </div>
         </div>
-        <div style={{padding:"5px 14px",background:G100,borderRadius:20,fontSize:13,color:G500,fontWeight:600,border:`1px solid ${G200}`}}>{user}</div>
+        <div style={{padding:"7px 16px",background:G200,borderRadius:50,fontSize:13,color:G500,fontWeight:600}}>{user}</div>
       </div>
       <div style={{padding:"16px 14px 100px"}}>
         {page==="dash"&&<Dash o={orders} gd={gd} nv={nv} cl={colors} gr={gr} recSync={recSync}/>}
@@ -363,7 +368,7 @@ export default function App(){
         {page==="objdetail"&&oid&&<ObjDetail obj={objects.find(x=>x.id===oid)} samples={samples.filter(s=>s.object_id===oid)} addSample={addSample} updateSample={updateSample} deleteSample={deleteSample} addDbRecipe={addDbRecipe} dbRecipes={dbRecipes} user={user} cl={colors} gr={gr} gb={()=>setPage("objects")} ao={ao} orders={orders.filter(o=>o.object_id===oid)}/>}
         {page==="export"&&<Exp o={orders} cl={colors} gr={gr}/>}
       </div>
-      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:W,borderTop:`1px solid ${G200}`,display:"flex",zIndex:100,paddingBottom:"env(safe-area-inset-bottom)"}}>
+      <div style={{position:"fixed",bottom:0,left:"50%",transform:"translateX(-50%)",width:"100%",maxWidth:480,background:W,boxShadow:"0 -1px 0 #e8e8ec",display:"flex",zIndex:100,paddingBottom:"env(safe-area-inset-bottom)"}}>
         {[["dash","Главная","M3 12l9-9 9 9M9 21V12h6v9"],["neworder","Заказ","M12 5v14M5 12h14"],["orders","Заказы","M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"],["objects","Объекты","M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"],["recipes","Рецептуры","M9 3h6M10 3v7l-6 8a1.5 1.5 0 001.2 2.4h13.6A1.5 1.5 0 0020 18l-6-8V3"],["export","Экспорт","M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"]].map(([id,lb,d])=>{
           const isActive=page===id||(id==="neworder"&&(page==="neworder"||page==="neworder_партия"));
           return <button key={id} onClick={()=>nv(id)} style={{flex:1,padding:"10px 0 8px",border:"none",background:"transparent",cursor:"pointer",display:"flex",flexDirection:"column",alignItems:"center",gap:3,fontFamily:FF}}>
@@ -397,9 +402,9 @@ function Dash({o,gd,nv,cl,gr,recSync}){
 
   return <div>
     <div style={{display:"flex",gap:8,marginBottom:12}}>
-      <button onClick={()=>nv("neworder")} style={{flex:1,padding:"13px 8px",background:RED,color:W,border:"none",borderRadius:12,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:FF}}>+ Образец</button>
-      <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"13px 8px",background:NAVY,color:W,border:"none",borderRadius:12,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:FF}}>+ Партия</button>
-      <button onClick={()=>nv("orders")} style={{padding:"13px 14px",background:W,color:G500,border:`1px solid ${G200}`,borderRadius:12,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:FF}}>Все</button>
+      <button onClick={()=>nv("neworder")} style={{flex:1,padding:"14px 8px",background:RED,color:W,border:"none",borderRadius:14,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF}}>+ Образец</button>
+      <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"14px 8px",background:NAVY,color:W,border:"none",borderRadius:14,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF}}>+ Партия</button>
+      <button onClick={()=>nv("orders")} style={{padding:"14px 16px",background:G200,color:G500,border:"none",borderRadius:14,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:FF}}>Все</button>
     </div>
 
     <div style={{...C,marginBottom:8,padding:"10px 12px"}}>
@@ -484,7 +489,7 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
   const aKg=area?parseFloat(area)*0.4:0;const aBk=aKg?Math.ceil(aKg/20):0;
   const ok=pt&&pal&&cc&&ot&&(ot==="образец"?ct:qty>0);
   const go=()=>ao({paint_type:pt,palette:pal,color_code:cc,has_recipe:hr,order_type:ot,container_size:ot==="образец"?ct:"20кг",quantity:ot==="образец"?1:parseInt(qty),primer_qty:primer>0?primer:null,object_name:obj,comment:cmt,desired_date:dd,facade_area:area?parseFloat(area):null,created_by:user});
-  const Sel=({active,onClick,children,c=RED})=><button onClick={onClick} style={{flex:1,padding:"14px 8px",border:active?`2.5px solid ${c}`:`1.5px solid ${G200}`,borderRadius:12,background:active?c+"0f":W,fontWeight:active?800:600,fontSize:15,cursor:"pointer",color:active?c:INK2,fontFamily:FF}}>{children}</button>;
+  const Sel=({active,onClick,children})=><button onClick={onClick} style={{flex:1,padding:"14px 8px",border:"none",borderRadius:50,background:active?INK:G200,fontWeight:active?700:500,fontSize:14,cursor:"pointer",color:active?W:G500,fontFamily:FF,transition:"all .15s"}}>{children}</button>;
 
   return <div>
     <Tag>Новый заказ</Tag>
@@ -492,8 +497,8 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
 
     <div style={{...C,marginBottom:10}}><Tag>Тип краски</Tag>
       <div style={{display:"flex",gap:10}}>
-        <button onClick={()=>{spt("силикат");if(step<2)ss(2)}} style={{flex:1,padding:"18px 8px",border:pt==="силикат"?`2.5px solid ${RED}`:`1.5px solid ${G200}`,borderRadius:14,background:pt==="силикат"?`linear-gradient(145deg,${REDL},#fff)`:W,fontWeight:800,fontSize:16,cursor:"pointer",color:pt==="силикат"?RED:INK2,fontFamily:FF,boxShadow:pt==="силикат"?`0 4px 16px ${RED}22`:"none"}}>СИЛИКАТ</button>
-        <button onClick={()=>{spt("акрил");if(step<2)ss(2)}} style={{flex:1,padding:"18px 8px",border:pt==="акрил"?`2.5px solid ${ORG}`:`1.5px solid ${G200}`,borderRadius:14,background:pt==="акрил"?ORGL:W,fontWeight:800,fontSize:16,cursor:"pointer",color:pt==="акрил"?ORG:INK2,fontFamily:FF,boxShadow:pt==="акрил"?`0 4px 16px ${ORG}22`:"none"}}>АКРИЛ</button>
+        <button onClick={()=>{spt("силикат");if(step<2)ss(2)}} style={{flex:1,padding:"16px 8px",border:"none",borderRadius:50,background:pt==="силикат"?INK:G200,fontWeight:700,fontSize:15,cursor:"pointer",color:pt==="силикат"?W:G500,fontFamily:FF,transition:"all .15s"}}>Силикат</button>
+        <button onClick={()=>{spt("акрил");if(step<2)ss(2)}} style={{flex:1,padding:"16px 8px",border:"none",borderRadius:50,background:pt==="акрил"?INK:G200,fontWeight:700,fontSize:15,cursor:"pointer",color:pt==="акрил"?W:G500,fontFamily:FF,transition:"all .15s"}}>Акрил</button>
       </div>
     </div>
 
@@ -562,9 +567,9 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
 
     {step>=5&&<div style={{...C,marginBottom:10}}>
       <Tag>Детали</Tag>
-      <input value={obj} onChange={e=>sobj(e.target.value)} placeholder="Объект / адрес" style={{...IB,marginBottom:8}}/>
-      <input value={dd} onChange={e=>sdd(e.target.value)} type="date" style={{...IB,marginBottom:8}}/>
-      <textarea value={cmt} onChange={e=>scmt(e.target.value)} placeholder="Комментарий..." rows={2} style={{...IB,resize:"vertical",marginBottom:14}}/>
+      <input value={obj} onChange={e=>sobj(e.target.value)} placeholder="Объект / адрес" style={{...I,marginBottom:4}}/>
+      <input value={dd} onChange={e=>sdd(e.target.value)} type="date" style={{...I,marginBottom:4}}/>
+      <textarea value={cmt} onChange={e=>scmt(e.target.value)} placeholder="Комментарий..." rows={2} style={{...I,resize:"vertical",marginBottom:14}}/>
       <div style={{background:REDL,borderRadius:14,padding:18,borderLeft:`4px solid ${RED}`}}>
         <Tag>Калькулятор</Tag>
         <input value={area} onChange={e=>sar(e.target.value.replace(/[^0-9.]/g,""))} placeholder="Площадь фасада, м²" style={I}/>
@@ -576,13 +581,13 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
       </div>
     </div>}
 
-    {ok&&<button onClick={go} style={{width:"100%",padding:"18px",background:GRN,color:W,border:"none",borderRadius:14,fontSize:16,fontWeight:900,cursor:"pointer",fontFamily:FF,boxShadow:`0 8px 24px ${GRN}44`}}>Создать заказ</button>}
+    {ok&&<button onClick={go} style={{...BTN,background:RED,boxShadow:"none"}}>Создать заказ</button>}
   </div>
 }
 
 /* ═══ ORDER CARD ═══ */
 function OrdCard({ord,onClick}){
-  return <div onClick={onClick} style={{...C,cursor:"pointer",borderTop:`3px solid ${SC[ord.status]}`,padding:"10px 11px"}}>
+  return <div onClick={onClick} style={{...C,cursor:"pointer",borderLeft:`3px solid ${SC[ord.status]}`,padding:"10px 14px",borderRadius:14}}>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
       <span style={{fontWeight:700,fontSize:13,color:INK}}>#{ord.order_number}</span>
       <span style={{fontSize:9,background:SC[ord.status]+"15",color:SC[ord.status],padding:"2px 7px",borderRadius:6,fontWeight:700}}>{ST[ord.status]}</span>
