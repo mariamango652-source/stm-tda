@@ -404,7 +404,7 @@ function Dash({o,gd,nv,cl,gr,recSync}){
     <div style={{display:"flex",gap:8,marginBottom:12}}>
       <button onClick={()=>nv("neworder")} style={{flex:1,padding:"14px 8px",background:RED,color:W,border:"none",borderRadius:14,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF}}>+ Образец</button>
       <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"14px 8px",background:NAVY,color:W,border:"none",borderRadius:14,fontSize:14,fontWeight:700,cursor:"pointer",fontFamily:FF}}>+ Партия</button>
-      <button onClick={()=>nv("orders")} style={{padding:"14px 16px",background:G200,color:G500,border:"none",borderRadius:14,fontSize:13,fontWeight:600,cursor:"pointer",fontFamily:FF}}>Все</button>
+      <button onClick={()=>nv("orders")} style={{flex:1,padding:"14px 8px",background:G200,color:G500,border:"none",borderRadius:14,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:FF}}>Все →</button>
     </div>
 
     <div style={{...C,marginBottom:8,padding:"10px 12px"}}>
@@ -587,19 +587,27 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
 
 /* ═══ ORDER CARD ═══ */
 function OrdCard({ord,onClick}){
-  return <div onClick={onClick} style={{...C,cursor:"pointer",borderLeft:`3px solid ${SC[ord.status]}`,padding:"10px 14px",borderRadius:14}}>
-    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-      <span style={{fontWeight:700,fontSize:13,color:INK}}>#{ord.order_number}</span>
-      <span style={{fontSize:9,background:SC[ord.status]+"15",color:SC[ord.status],padding:"2px 7px",borderRadius:6,fontWeight:700}}>{ST[ord.status]}</span>
+  const isSample=ord.order_type==="образец";
+  const typeColor=isSample?RED:NAVY;
+  return <div onClick={onClick} style={{...C,cursor:"pointer",padding:"14px",borderRadius:16,display:"flex",flexDirection:"column",gap:8,minHeight:130}}>
+    {/* Верхняя строка: номер + статус */}
+    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <span style={{fontWeight:800,fontSize:15,color:INK,letterSpacing:-0.3}}>#{ord.order_number}</span>
+      <span style={{fontSize:10,background:SC[ord.status]+"18",color:SC[ord.status],padding:"3px 9px",borderRadius:50,fontWeight:700}}>{ST[ord.status]}</span>
     </div>
-    <div style={{fontSize:12,fontWeight:700,color:INK,marginBottom:2,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{ord.color_code}</div>
-    <div style={{fontSize:10,color:G500,marginBottom:2}}>
-      <span style={{background:ord.order_type==="образец"?REDL:BLUL,color:ord.order_type==="образец"?RED:BLU,padding:"1px 5px",borderRadius:4,fontWeight:700,fontSize:9}}>{ord.order_type==="образец"?"Обр":"Парт"}</span>
-      {" "}{ord.order_type==="образец"?(ord.container_size||""):`${ord.quantity||1}×20кг`}
+    {/* Цвет — главная информация */}
+    <div style={{fontSize:16,fontWeight:800,color:INK,lineHeight:1.2,wordBreak:"break-word"}}>{ord.color_code}</div>
+    {/* Тип + объём */}
+    <div style={{display:"flex",alignItems:"center",gap:6}}>
+      <span style={{background:isSample?REDL:BLUL,color:typeColor,padding:"3px 9px",borderRadius:50,fontSize:11,fontWeight:700}}>{isSample?"Образец":"Партия"}</span>
+      <span style={{fontSize:12,color:G500,fontWeight:600}}>{isSample?(ord.container_size||""):`${ord.quantity||1}×20кг`}</span>
+      {ord.primer_qty&&<span style={{fontSize:11,color:ORG,fontWeight:700}}>+г×{ord.primer_qty}</span>}
     </div>
-    {ord.primer_qty&&<div style={{fontSize:9,color:ORG,fontWeight:700,marginBottom:1}}>+ грунт ×{ord.primer_qty}</div>}
-    {ord.object_name&&<div style={{fontSize:9,color:G400,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>📍 {ord.object_name}</div>}
-    <div style={{fontSize:9,color:G300,marginTop:3}}>{fmtDateShort(ord.created_at)} · {ord.paint_type}</div>
+    {/* Адрес и дата */}
+    <div style={{marginTop:"auto"}}>
+      {ord.object_name&&<div style={{fontSize:11,color:G400,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",marginBottom:2}}>📍 {ord.object_name}</div>}
+      <div style={{fontSize:10,color:G300,fontWeight:500}}>{fmtDateShort(ord.created_at)} · {ord.paint_type}</div>
+    </div>
   </div>;
 }
 
@@ -649,11 +657,11 @@ function OrdList({o,gd,initTypeFilter="all"}){
           <div style={{fontSize:10,fontWeight:700,color:G400,letterSpacing:.8,textTransform:"uppercase",marginBottom:6,padding:"0 2px"}}>
             {date===todayStr()?"Сегодня":fmtDate(date)} · {items.length}
           </div>
-          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
           {items.map(ord=><OrdCard key={ord.id} ord={ord} onClick={()=>gd(ord.id)}/>)}
           </div>
         </div>)
-      :<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+      :<div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
         {list.map(ord=><OrdCard key={ord.id} ord={ord} onClick={()=>gd(ord.id)}/>)}
       </div>}
   </div>
