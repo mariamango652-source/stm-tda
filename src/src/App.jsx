@@ -156,7 +156,7 @@ export default function App(){
   };
 
   const ao=async(o)=>{
-    const row={paint_type:o.paint_type,palette:o.palette,color_code:o.color_code,has_recipe:o.has_recipe,order_type:o.order_type,container_size:o.order_type==="образец"?o.container_size:"20кг",quantity:o.order_type==="образец"?1:parseInt(o.quantity),primer_qty:o.primer_qty||null,object_name:o.object_name||null,facade_area:o.facade_area||null,comment:o.comment||null,desired_date:o.desired_date||null,status:"new",created_by:o.created_by};
+    const row={paint_type:o.paint_type,palette:o.palette,color_code:o.color_code,has_recipe:o.has_recipe,order_type:o.order_type,container_size:o.order_type==="образец"?o.container_size:"20кг",quantity:o.order_type==="образец"?1:parseInt(o.quantity),primer_qty:o.primer_qty||null,object_name:o.object_name||null,facade_area:o.facade_area||null,comment:o.comment||null,desired_date:o.desired_date||null,recipe_version:o.recipe_version||null,status:"new",created_by:o.created_by};
     const{data,error}=await SB.from("orders").insert(row).select().single();
     if(error){alert("Ошибка: "+error.message);return}
     if(data){
@@ -480,7 +480,7 @@ function Dash({o,gd,nv,cl,gr,recSync}){
 
 /* ═══ NEW ORDER ═══ */
 function NewOrd({cl,gr,ao,user,initOrderType=""}){
-  const [step,ss]=useState(initOrderType?4:1);const [pt,spt]=useState("");const [pal,spal]=useState("");const [cc,scc]=useState("");const [ot,sot]=useState(initOrderType);const [ct,sct]=useState("");const [qty,sq]=useState(1);const [obj,sobj]=useState("");const [cmt,scmt]=useState("");const [dd,sdd]=useState("");const [area,sar]=useState("");const [srch,ssrch]=useState("");
+  const [step,ss]=useState(initOrderType?4:1);const [pt,spt]=useState("");const [pal,spal]=useState("");const [cc,scc]=useState("");const [ot,sot]=useState(initOrderType);const [ct,sct]=useState("");const [qty,sq]=useState(1);const [obj,sobj]=useState("");const [cmt,scmt]=useState("");const [dd,sdd]=useState("");const [area,sar]=useState("");const [srch,ssrch]=useState("");const [rv,srv]=useState("");
   const [primer,setPrimer]=useState(0);
   const allPalettes=[...new Set(cl.map(c=>c.palette))];
   const fl=useMemo(()=>{if(!pal)return[];let f=cl.filter(c=>c.palette===pal);if(srch)f=f.filter(c=>c.code.toLowerCase().includes(srch.toLowerCase()));return f.slice(0,50)},[pal,srch,cl]);
@@ -488,7 +488,7 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
   const hr=sel?gr(sel.code,pt):false;
   const aKg=area?parseFloat(area)*0.4:0;const aBk=aKg?Math.ceil(aKg/20):0;
   const ok=pt&&pal&&cc&&ot&&(ot==="образец"?ct:qty>0);
-  const go=()=>ao({paint_type:pt,palette:pal,color_code:cc,has_recipe:hr,order_type:ot,container_size:ot==="образец"?ct:"20кг",quantity:ot==="образец"?1:parseInt(qty),primer_qty:primer>0?primer:null,object_name:obj,comment:cmt,desired_date:dd,facade_area:area?parseFloat(area):null,created_by:user});
+  const go=()=>ao({paint_type:pt,palette:pal,color_code:cc,has_recipe:hr,order_type:ot,container_size:ot==="образец"?ct:"20кг",quantity:ot==="образец"?1:parseInt(qty),primer_qty:primer>0?primer:null,object_name:obj,comment:cmt,desired_date:dd,facade_area:area?parseFloat(area):null,recipe_version:rv.trim()||null,created_by:user});
   const Sel=({active,onClick,children})=><button onClick={onClick} style={{flex:1,padding:"14px 8px",border:"none",borderRadius:50,background:active?INK:G200,fontWeight:active?700:500,fontSize:14,cursor:"pointer",color:active?W:G500,fontFamily:FF,transition:"all .15s"}}>{children}</button>;
 
   return <div>
@@ -569,6 +569,13 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
       <Tag>Детали</Tag>
       <input value={obj} onChange={e=>sobj(e.target.value)} placeholder="Объект / адрес" style={{...I,marginBottom:4}}/>
       <input value={dd} onChange={e=>sdd(e.target.value)} type="date" style={{...I,marginBottom:4}}/>
+      <div style={{marginBottom:4}}>
+        <div style={{fontSize:11,color:G400,fontWeight:700,letterSpacing:1,textTransform:"uppercase",marginBottom:6,marginTop:8}}>Версия рецептуры</div>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
+          {["1","1.1","1.2","2","2.1","3"].map(v=><button key={v} onClick={()=>srv(rv===v?"":v)} style={{padding:"7px 14px",borderRadius:50,border:"none",background:rv===v?INK:G200,color:rv===v?W:G500,fontSize:13,fontWeight:rv===v?700:500,cursor:"pointer",fontFamily:FF}}>{v}</button>)}
+        </div>
+        <input value={rv} onChange={e=>srv(e.target.value)} placeholder="или введите вручную: 1.3, R2..." style={{...I}}/>
+      </div>
       <textarea value={cmt} onChange={e=>scmt(e.target.value)} placeholder="Комментарий..." rows={2} style={{...I,resize:"vertical",marginBottom:14}}/>
       <div style={{background:REDL,borderRadius:14,padding:18,borderLeft:`4px solid ${RED}`}}>
         <Tag>Калькулятор</Tag>
@@ -596,7 +603,10 @@ function OrdCard({ord,onClick}){
       <span style={{fontSize:10,background:SC[ord.status]+"18",color:SC[ord.status],padding:"3px 9px",borderRadius:50,fontWeight:700}}>{ST[ord.status]}</span>
     </div>
     {/* Цвет — главная информация */}
-    <div style={{fontSize:16,fontWeight:800,color:INK,lineHeight:1.2,wordBreak:"break-word"}}>{ord.color_code}</div>
+    <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
+      <span style={{fontSize:16,fontWeight:800,color:INK,lineHeight:1.2,wordBreak:"break-word"}}>{ord.color_code}</span>
+      {ord.recipe_version&&<span style={{fontSize:11,fontWeight:700,color:W,background:ORG,padding:"2px 8px",borderRadius:50}}>v{ord.recipe_version}</span>}
+    </div>
     {/* Тип + объём */}
     <div style={{display:"flex",alignItems:"center",gap:6}}>
       <span style={{background:isSample?REDL:BLUL,color:typeColor,padding:"3px 9px",borderRadius:50,fontSize:11,fontWeight:700}}>{isSample?"Образец":"Партия"}</span>
@@ -824,7 +834,7 @@ function OrdDet({o,uo,ac,del,user,gr,gb,addKp,delKp}){
     {/* ═══ ДОПОЛНИТЕЛЬНЫЕ ДАННЫЕ (collapsible) ═══ */}
     <Section title="Доп. данные" defaultOpen={false} accent={G400}>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,fontSize:13}}>
-        {[["Палитра",o.palette],["Тара",o.container_size],["Кол-во",o.quantity],["Создал",o.created_by],...(o.desired_date?[["Желаемый срок",fmtDate(o.desired_date)]]:[])]
+        {[["Палитра",o.palette],["Тара",o.container_size],["Кол-во",o.quantity],["Создал",o.created_by],...(o.recipe_version?[["Версия рецептуры","v"+o.recipe_version]]:[]),...(o.desired_date?[["Желаемый срок",fmtDate(o.desired_date)]]:[])]
           .map(([l,v])=><div key={l}>
             <div style={{fontSize:10,color:G400,fontWeight:800,letterSpacing:.5,textTransform:"uppercase",marginBottom:3}}>{l}</div>
             <div style={{fontWeight:600,color:INK}}>{v||"—"}</div>
