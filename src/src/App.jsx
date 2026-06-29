@@ -19,9 +19,9 @@ const fmtDateShort=d=>d?new Date(d).toLocaleDateString("ru-RU",{day:"2-digit",mo
 const todayStr=()=>new Date().toISOString().slice(0,10);
 const LS={get:(k,d)=>{try{const v=localStorage.getItem("stm_tda_"+k);return v?JSON.parse(v):d}catch{return d}},set:(k,v)=>{try{localStorage.setItem("stm_tda_"+k,JSON.stringify(v))}catch{}}};
 
-const BG="#f5f5f5";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G100="#f5f5f5";const G200="#e8e8e8";const G300="#d1d1d1";const G400="#a3a3a3";const G500="#737373";const RED="#ef4444";const REDL="#fff5f5";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#1d4ed8";const BLUL="#eff6ff";const FD="'Inter',-apple-system,'Segoe UI',sans-serif";
-const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=16;const SH="0 1px 4px rgba(0,0,0,.06),0 2px 12px rgba(0,0,0,.06)";
-const C={background:W,borderRadius:R,padding:16,boxShadow:SH};
+const BG="#f4f4f6";const W="#ffffff";const INK="#18181b";const INK2="#27272a";const G100="#f4f4f6";const G200="#e4e4e7";const G300="#d1d1d1";const G400="#a1a1aa";const G500="#71717a";const RED="#e63030";const REDL="#fff1f1";const GRN="#16a34a";const GRNL="#f0fdf4";const ORG="#ea580c";const ORGL="#fff7ed";const BLU="#2563eb";const BLUL="#eff6ff";const NAVY="#1e3a5f";const FD="'Inter',-apple-system,'Segoe UI',sans-serif";
+const FF="'Inter',-apple-system,'Segoe UI',sans-serif";const R=16;const SH="0 2px 8px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04)";
+const C={background:W,borderRadius:R,padding:16,boxShadow:SH,border:`1px solid ${G200}`};
 const I={width:"100%",padding:"12px 16px",border:"none",borderBottom:`2px solid ${G200}`,borderRadius:0,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:"transparent",outline:"none"};
 const IB={width:"100%",padding:"12px 16px",border:`1.5px solid ${G200}`,borderRadius:12,fontSize:15,boxSizing:"border-box",fontFamily:FF,color:INK,background:W,outline:"none"};
 
@@ -398,7 +398,7 @@ function Dash({o,gd,nv,cl,gr,recSync}){
   return <div>
     <div style={{display:"flex",gap:8,marginBottom:12}}>
       <button onClick={()=>nv("neworder")} style={{flex:1,padding:"13px 8px",background:RED,color:W,border:"none",borderRadius:12,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:FF}}>+ Образец</button>
-      <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"13px 8px",background:INK,color:W,border:"none",borderRadius:12,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:FF}}>+ Партия</button>
+      <button onClick={()=>nv("neworder_партия")} style={{flex:1,padding:"13px 8px",background:NAVY,color:W,border:"none",borderRadius:12,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:FF}}>+ Партия</button>
       <button onClick={()=>nv("orders")} style={{padding:"13px 14px",background:W,color:G500,border:`1px solid ${G200}`,borderRadius:12,fontSize:13,fontWeight:500,cursor:"pointer",fontFamily:FF}}>Все</button>
     </div>
 
@@ -407,7 +407,7 @@ function Dash({o,gd,nv,cl,gr,recSync}){
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:6}}>
         {[["Новые",byStatus(["new","accepted"]),RED,"new"],["В работе",byStatus(["inwork","waiting"]),ORG,"inwork"],["Готовы",byStatus("ready"),GRN,"ready"],["Получены",byStatus("received"),"#2563eb","received"],["Отгружены",byStatus("shipped"),G500,"shipped"],["Отменены",byStatus("cancelled"),"#18181b","cancelled"]].map(([l,v,c,k])=>
           <div key={k} onClick={()=>nv("orders_status_"+k)} style={{textAlign:"center",cursor:"pointer",padding:"8px 4px",borderRadius:10,background:v>0?c+"0c":BG,border:`1px solid ${v>0?c+"22":G200}`}}>
-            <div style={{fontSize:20,fontWeight:700,color:v>0?c:G400,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{v}</div>
+            <div style={{fontSize:20,fontWeight:700,color:v>0?c:G400,fontFamily:FF,lineHeight:1}}>{v}</div>
             <div style={{fontSize:9,color:G500,marginTop:3,fontWeight:700,lineHeight:1.2}}>{l}</div>
           </div>
         )}
@@ -417,12 +417,12 @@ function Dash({o,gd,nv,cl,gr,recSync}){
     <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
       <div onClick={()=>nv("orders_образец")} style={{...C,padding:"12px 14px",cursor:"pointer",borderLeft:`3px solid ${RED}`}}>
         <div style={{fontSize:10,color:RED,fontWeight:800,marginBottom:4}}>🧪 Образцы в работе</div>
-        <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{actSamples.length}</div>
+        <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FF,lineHeight:1}}>{actSamples.length}</div>
         {todaySamples.length>0&&<div style={{fontSize:10,color:GRN,marginTop:4,fontWeight:700}}>+{todaySamples.length} сегодня</div>}
       </div>
       <div onClick={()=>nv("orders_партия")} style={{...C,padding:"12px 14px",cursor:"pointer",borderLeft:`3px solid ${BLU}`}}>
         <div style={{fontSize:10,color:BLU,fontWeight:800,marginBottom:4}}>📦 Партии в работе</div>
-        <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic",lineHeight:1}}>{actBatch.length}</div>
+        <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FF,lineHeight:1}}>{actBatch.length}</div>
         {todayBatch.length>0&&<div style={{fontSize:10,color:GRN,marginTop:4,fontWeight:700}}>+{todayBatch.length} сегодня</div>}
       </div>
     </div>
@@ -432,22 +432,22 @@ function Dash({o,gd,nv,cl,gr,recSync}){
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
         <div onClick={()=>nv("recipes_L_силикат")} style={{cursor:"pointer",padding:"10px 12px",borderRadius:12,border:`1.5px solid ${RED}22`,background:RED+"06"}}>
           <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Ленингр. · Силикат</div>
-          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:RED,fontFamily:FD,fontStyle:"italic"}}>{ls}</span><span style={{fontSize:11,color:G400}}>/{lt}</span></div>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:RED,fontFamily:FF}}>{ls}</span><span style={{fontSize:11,color:G400}}>/{lt}</span></div>
           <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:RED,width:`${Math.max(2,lt>0?(ls/lt)*100:0)}%`}}/></div>
         </div>
         <div onClick={()=>nv("recipes_L_акрил")} style={{cursor:"pointer",padding:"10px 12px",borderRadius:12,border:`1.5px solid ${ORG}22`,background:ORG+"06"}}>
           <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Ленингр. · Акрил</div>
-          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:ORG,fontFamily:FD,fontStyle:"italic"}}>{la}</span><span style={{fontSize:11,color:G400}}>/{lt}</span></div>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:ORG,fontFamily:FF}}>{la}</span><span style={{fontSize:11,color:G400}}>/{lt}</span></div>
           <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:ORG,width:`${Math.max(2,lt>0?(la/lt)*100:0)}%`}}/></div>
         </div>
         <div style={{padding:"10px 12px",borderRadius:12,border:`1.5px solid ${G200}`,background:BG}}>
           <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Caparol · Силикат</div>
-          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>{cs}</span><span style={{fontSize:11,color:G400}}>/{ct}</span></div>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FF}}>{cs}</span><span style={{fontSize:11,color:G400}}>/{ct}</span></div>
           <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:INK,width:`${Math.max(2,ct>0?(cs/ct)*100:0)}%`}}/></div>
         </div>
         <div style={{padding:"10px 12px",borderRadius:12,border:`1.5px solid ${G200}`,background:BG}}>
           <div style={{fontSize:10,color:G500,fontWeight:700,marginBottom:4}}>Caparol · Акрил</div>
-          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>{ca}</span><span style={{fontSize:11,color:G400}}>/{ct}</span></div>
+          <div style={{display:"flex",alignItems:"baseline",gap:4}}><span style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FF}}>{ca}</span><span style={{fontSize:11,color:G400}}>/{ct}</span></div>
           <div style={{height:3,borderRadius:2,background:G200,marginTop:6}}><div style={{height:3,borderRadius:2,background:INK,width:`${Math.max(2,ct>0?(ca/ct)*100:0)}%`}}/></div>
         </div>
       </div>
@@ -488,7 +488,7 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
 
   return <div>
     <Tag>Новый заказ</Tag>
-    <div style={{fontSize:28,fontWeight:700,color:INK,marginBottom:20,fontFamily:FD,fontStyle:"italic"}}>Новый заказ</div>
+    <div style={{fontSize:24,fontWeight:800,color:INK,marginBottom:20,fontFamily:FF,letterSpacing:-0.5}}>Новый заказ</div>
 
     <div style={{...C,marginBottom:10}}><Tag>Тип краски</Tag>
       <div style={{display:"flex",gap:10}}>
@@ -541,7 +541,7 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
       </div></>:<><Tag>Количество (20 кг)</Tag>
         <div style={{display:"flex",alignItems:"center",gap:20}}>
           <button onClick={()=>sq(Math.max(1,qty-1))} style={{width:52,height:52,borderRadius:14,border:`1.5px solid ${G200}`,background:W,fontSize:24,cursor:"pointer",color:INK,fontFamily:FF}}>−</button>
-          <span style={{fontSize:44,fontWeight:700,color:INK,letterSpacing:-1.5,fontFamily:FD,fontStyle:"italic"}}>{qty}</span>
+          <span style={{fontSize:44,fontWeight:700,color:INK,letterSpacing:-1.5,fontFamily:FF}}>{qty}</span>
           <button onClick={()=>sq(qty+1)} style={{width:52,height:52,borderRadius:14,border:`1.5px solid ${G200}`,background:W,fontSize:24,cursor:"pointer",color:INK,fontFamily:FF}}>+</button>
           <span style={{fontSize:15,color:G500,fontWeight:700}}>{qty*20} кг</span>
         </div>
@@ -553,7 +553,7 @@ function NewOrd({cl,gr,ao,user,initOrderType=""}){
       <div style={{fontSize:12,color:G500,marginBottom:10}}>{pt==="силикат"?"Силиказит / Тиги Сил":"Акриловая грунтовка"} · канистра 10 кг</div>
       <div style={{display:"flex",alignItems:"center",gap:16}}>
         <button onClick={()=>setPrimer(Math.max(0,primer-1))} style={{width:44,height:44,borderRadius:10,border:`1.5px solid ${G200}`,background:W,fontSize:22,cursor:"pointer",color:INK,fontFamily:FF}}>−</button>
-        <span style={{fontSize:28,fontWeight:700,color:primer>0?INK:G400,fontFamily:FD,fontStyle:"italic",minWidth:32,textAlign:"center"}}>{primer}</span>
+        <span style={{fontSize:28,fontWeight:700,color:primer>0?INK:G400,fontFamily:FF,minWidth:32,textAlign:"center"}}>{primer}</span>
         <button onClick={()=>setPrimer(primer+1)} style={{width:44,height:44,borderRadius:10,border:`1.5px solid ${G200}`,background:W,fontSize:22,cursor:"pointer",color:INK,fontFamily:FF}}>+</button>
         {primer>0&&<span style={{fontSize:13,color:G500,fontWeight:700}}>{primer} × 10 кг = {primer*10} кг</span>}
         {primer===0&&<span style={{fontSize:12,color:G400}}>0 канистр</span>}
@@ -623,7 +623,7 @@ function OrdList({o,gd,initTypeFilter="all"}){
   return <div>
     <Tag>Заказы</Tag>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:10}}>
-      <div style={{fontSize:24,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>Заказы <span style={{fontSize:14,color:G400,fontWeight:600}}>({countLabel})</span></div>
+      <div style={{fontSize:24,fontWeight:800,color:INK,fontFamily:FF,letterSpacing:-0.5}}>Заказы <span style={{fontSize:14,color:G400,fontWeight:600}}>({countLabel})</span></div>
       <button onClick={()=>setGrouped(!grouped)} style={{fontSize:11,color:grouped?BLU:G500,background:grouped?BLUL:BG,border:"none",borderRadius:8,padding:"4px 10px",cursor:"pointer",fontWeight:700,fontFamily:FF}}>{grouped?"По датам":"Списком"}</button>
     </div>
     {/* Статус */}
@@ -688,7 +688,7 @@ function OrdDet({o,uo,ac,del,user,gr,gb,addKp,delKp}){
       {/* Строка 1: номер + тип + статус */}
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
         <div style={{display:"flex",alignItems:"center",gap:8}}>
-          <span style={{fontSize:26,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>#{o.order_number}</span>
+          <span style={{fontSize:26,fontWeight:700,color:INK,fontFamily:FF}}>#{o.order_number}</span>
           <TypeBadge type={o.order_type}/>
         </div>
         <Badge status={o.status}/>
@@ -955,7 +955,7 @@ function RecDB({cl,gr,sr,addColor,initFilter,dbRecipes,setDbRecipes,orders,objec
 
   return <div>
     <Tag>Рецептуры</Tag>
-    <div style={{fontSize:28,fontWeight:700,color:INK,marginBottom:12,fontFamily:FD,fontStyle:"italic"}}>Рецептуры</div>
+    <div style={{fontSize:24,fontWeight:800,color:INK,marginBottom:12,fontFamily:FF,letterSpacing:-0.5}}>Рецептуры</div>
 
     {/* ═══ COLORS TAB ═══ */}
     <div>
@@ -1022,7 +1022,7 @@ function RecDB({cl,gr,sr,addColor,initFilter,dbRecipes,setDbRecipes,orders,objec
           <div style={{background:W,borderRadius:"20px 20px 0 0",padding:20,width:"100%",maxWidth:480,maxHeight:"80vh",overflowY:"auto",boxSizing:"border-box"}} onClick={e=>e.stopPropagation()}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:16}}>
               <div>
-                <div style={{fontSize:20,fontWeight:800,color:INK,fontFamily:FD,fontStyle:"italic"}}>{code}</div>
+                <div style={{fontSize:20,fontWeight:800,color:INK,fontFamily:FF}}>{code}</div>
                 <div style={{fontSize:12,color:G500,marginTop:2}}>{colorDetail.palette}</div>
               </div>
               <div style={{display:"flex",gap:6}}>
@@ -1100,7 +1100,7 @@ function ObjList({objects,samples,addObject,updateObject,oid,setOid,nv,user}){
   return <div>
     <Tag>Объекты</Tag>
     <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:14}}>
-      <div style={{fontSize:28,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>Объекты</div>
+      <div style={{fontSize:24,fontWeight:800,color:INK,fontFamily:FF,letterSpacing:-0.5}}>Объекты</div>
       <button onClick={()=>setShowForm(!showForm)} style={{padding:"8px 16px",background:showForm?BG:RED,color:showForm?G500:W,border:showForm?`1.5px solid ${G200}`:"none",borderRadius:10,fontSize:13,fontWeight:800,cursor:"pointer",fontFamily:FF}}>
         {showForm?"Отмена":"+ Объект"}
       </button>
@@ -1204,7 +1204,7 @@ function ObjDetail({obj,samples,addSample,updateSample,deleteSample,addDbRecipe,
 
     {/* OBJ INFO */}
     <div style={{...C,marginBottom:10}}>
-      <div style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic",marginBottom:8,lineHeight:1.2}}>{obj.name}</div>
+      <div style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FF,marginBottom:8,lineHeight:1.2}}>{obj.name}</div>
       {obj.address&&<div style={{fontSize:13,color:G500,marginBottom:3}}>📍 {obj.address}</div>}
       {obj.contact_name&&<div style={{fontSize:13,color:G500,marginBottom:3}}>👤 {obj.contact_name}</div>}
       <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:obj.notes?8:0,marginTop:6}}>
@@ -1214,9 +1214,9 @@ function ObjDetail({obj,samples,addSample,updateSample,deleteSample,addDbRecipe,
       </div>
       {obj.notes&&<div style={{fontSize:13,color:G500,background:BG,borderRadius:8,padding:"8px 12px",marginBottom:4}}>{obj.notes}</div>}
       <div style={{marginTop:10,display:"flex",gap:8}}>
-        <div style={{flex:1,background:REDL,borderRadius:10,padding:"10px 12px",textAlign:"center"}}><div style={{fontSize:22,fontWeight:700,color:RED,fontFamily:FD,fontStyle:"italic"}}>{samples.length}</div><div style={{fontSize:10,color:G500,fontWeight:700,marginTop:2}}>Образцов</div></div>
-        <div style={{flex:1,background:GRNL,borderRadius:10,padding:"10px 12px",textAlign:"center"}}><div style={{fontSize:22,fontWeight:700,color:GRN,fontFamily:FD,fontStyle:"italic"}}>{approved.length}</div><div style={{fontSize:10,color:G500,fontWeight:700,marginTop:2}}>Согласовано</div></div>
-        <div style={{flex:1,background:BG,borderRadius:10,padding:"10px 12px",textAlign:"center"}}><div style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FD,fontStyle:"italic"}}>{orders.length}</div><div style={{fontSize:10,color:G500,fontWeight:700,marginTop:2}}>Заказов</div></div>
+        <div style={{flex:1,background:REDL,borderRadius:10,padding:"10px 12px",textAlign:"center"}}><div style={{fontSize:22,fontWeight:700,color:RED,fontFamily:FF}}>{samples.length}</div><div style={{fontSize:10,color:G500,fontWeight:700,marginTop:2}}>Образцов</div></div>
+        <div style={{flex:1,background:GRNL,borderRadius:10,padding:"10px 12px",textAlign:"center"}}><div style={{fontSize:22,fontWeight:700,color:GRN,fontFamily:FF}}>{approved.length}</div><div style={{fontSize:10,color:G500,fontWeight:700,marginTop:2}}>Согласовано</div></div>
+        <div style={{flex:1,background:BG,borderRadius:10,padding:"10px 12px",textAlign:"center"}}><div style={{fontSize:22,fontWeight:700,color:INK,fontFamily:FF}}>{orders.length}</div><div style={{fontSize:10,color:G500,fontWeight:700,marginTop:2}}>Заказов</div></div>
       </div>
     </div>
 
@@ -1340,7 +1340,7 @@ function Exp({o,cl,gr}){
   const allPalettes=[...new Set(cl.map(c=>c.palette))];
 
   return <div>
-    <div style={{fontSize:22,fontWeight:700,color:INK,marginBottom:14,fontFamily:FD,fontStyle:"italic"}}>Экспорт</div>
+    <div style={{fontSize:22,fontWeight:700,color:INK,marginBottom:14,fontFamily:FF}}>Экспорт</div>
 
     {/* ЗАКАЗЫ */}
     <div style={{...C,marginBottom:10}}>
